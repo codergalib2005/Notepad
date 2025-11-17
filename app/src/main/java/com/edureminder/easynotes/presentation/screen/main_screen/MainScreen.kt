@@ -16,12 +16,13 @@ import androidx.navigation.NavHostController
 import com.edureminder.easynotes.R
 import com.edureminder.easynotes.drive.AuthViewModel
 import com.edureminder.easynotes.presentation.navigation.Screen
+import com.edureminder.easynotes.presentation.screen.main_screen.diary_views.DiaryView
 import com.edureminder.easynotes.ui.Container
 
 @Composable
 fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
     var selectedTab by rememberSaveable {
-        mutableIntStateOf(0)
+        mutableIntStateOf(3)
     }
     val tasksTypes = listOf(
         TaskTypeItem(
@@ -29,7 +30,7 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
             name = "Task",
             icon = R.drawable.task,
             onClick = {
-                navController.navigate(Screen.EditNoteScreen)
+                navController.navigate(Screen.AddNoteScreen)
             }
         ),
         TaskTypeItem(
@@ -64,6 +65,9 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
+            when(selectedTab){
+                3 -> DiaryView()
+            }
 
             Box (
                 modifier = Modifier

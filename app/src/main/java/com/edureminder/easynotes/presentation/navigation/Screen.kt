@@ -26,5 +26,8 @@ sealed class Screen {
     ): Screen()
 
     @Serializable
+    data object AddNoteScreen: Screen()
+
+    @Serializable
     data object Subscription: Screen()
 }

@@ -32,7 +32,7 @@ fun SetupNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.AddDiaryScreen
     ) {
         composable <Screen.MainScreen>{
             MainScreen(

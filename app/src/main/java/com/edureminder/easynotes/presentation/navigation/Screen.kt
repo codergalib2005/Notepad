@@ -30,4 +30,7 @@ sealed class Screen {
 
     @Serializable
     data object Subscription: Screen()
+
+    @Serializable
+    data object AddDiaryScreen: Screen()
 }

@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.edureminder.easynotes.drive.AuthViewModel
+import com.edureminder.easynotes.presentation.screen.diary_screen.AddDiaryScreen
 import com.edureminder.easynotes.presentation.screen.edit_note.AddNoteScreen
 import com.edureminder.easynotes.presentation.screen.edit_note.EditNoteScreen
 import com.edureminder.easynotes.presentation.screen.main_screen.MainScreen
@@ -61,6 +62,18 @@ fun SetupNavGraph(
             popExitTransition = { slideLeftExit() }
         ){
             AddNoteScreen(
+                navController,
+                onPDFGenerate = onPDFGenerate
+            )
+        }
+
+        composable<Screen.AddDiaryScreen> (
+            enterTransition = { slideRightEnter() },
+            exitTransition = { slideRightExit() },
+            popEnterTransition = { slideLeftEnter() },
+            popExitTransition = { slideLeftExit() }
+        ){
+            AddDiaryScreen(
                 navController,
                 onPDFGenerate = onPDFGenerate
             )

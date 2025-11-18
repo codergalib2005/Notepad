@@ -44,33 +44,14 @@ fun NotepadTheme(
     isDarkMode: Int,
     content: @Composable () -> Unit,
 ) {
-    val context = LocalContext.current
-    val isSystemDarkMode = remember {
-        context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-    }
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (isDarkMode == 1) dynamicLightColorScheme(context) else dynamicLightColorScheme(context)
-
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        isDarkMode == 1 -> DarkColorScheme
+        darkTheme -> DarkColorScheme
         else -> LightColorScheme
-    }
-
-    when (isDarkMode) {
-        1 -> darkColorScheme(isTheme)  // Dark mode
-        2 -> if (isSystemDarkMode) darkColorScheme(isTheme) else lightColorScheme(isTheme)  // System mode
-        else -> lightColorScheme(isTheme)   // Light mode by default (0 or any other value)
-    }
-
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = Primary.toArgb()
-            window.navigationBarColor = ColorWhite.copy(0.3f).toArgb()
-        }
     }
 
     MaterialTheme(

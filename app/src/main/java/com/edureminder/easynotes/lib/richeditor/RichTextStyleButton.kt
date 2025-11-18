@@ -25,13 +25,14 @@ fun RichTextStyleButton(
 ) {
     Box(
         modifier = Modifier
-            .size(35.dp)
+            .size(40.dp)
             .background(
                 if (isSelected) {
                     Primary.copy(0.2f)
                 } else {
                     Color.LightGray.copy(0.0f)
                 },
+                shape = MaterialTheme.shapes.extraSmall
             )
             .clickable (
                 indication = null,

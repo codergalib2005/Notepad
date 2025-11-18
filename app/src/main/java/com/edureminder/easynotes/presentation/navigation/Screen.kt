@@ -33,4 +33,9 @@ sealed class Screen {
 
     @Serializable
     data object AddDiaryScreen: Screen()
+
+    @Serializable
+    data class ImageViewScreen(
+        val imageUrl: String
+    ): Screen()
 }

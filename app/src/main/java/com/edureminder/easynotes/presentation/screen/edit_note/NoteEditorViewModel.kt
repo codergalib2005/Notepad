@@ -3,6 +3,7 @@ package com.edureminder.easynotes.presentation.screen.edit_note
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.*
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import com.edureminder.easynotes.data.ThemeManager
 import com.edureminder.easynotes.presentation.screen.edit_note.components.reminderTypes
 import com.edureminder.easynotes.room.folder.Folder
@@ -11,6 +12,8 @@ import kotlinx.serialization.Serializable
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
+import java.util.UUID
+import com.edureminder.easynotes.R
 
 
 val folderColors = listOf(
@@ -42,6 +45,13 @@ data class ChecklistItem(
 data class SelectedDay(
     val day: Int,
     val isSelected: Boolean = true
+)
+data class CanvasObject(
+    val id: String = UUID.randomUUID().toString(),
+    val res: Int,
+    val offset: Offset = Offset(100f, 100f),
+    val rotation: Float = 0f,
+    val scale: Float = 1f
 )
 
 class NoteEditorViewModel : ViewModel() {
@@ -139,8 +149,35 @@ class NoteEditorViewModel : ViewModel() {
     var isTextColorPickerOpen by mutableStateOf(false)
     var isTextBackgroundColorPickerOpen by mutableStateOf(false)
     var isTextFontSizePickerOpen by mutableStateOf(false)
+    var isListSelectorSheetOpen by mutableStateOf(false)
+    var selectedEmoji by mutableStateOf("")
 
     var selectedCategory by mutableStateOf("Color")
 
 //    val isMoreOptionsOpen = remember { mutableStateOf(false) }
+
+    /**
+     * Canvas
+     */
+    var canvasItems by mutableStateOf(listOf<CanvasObject>(
+        CanvasObject(
+            res = R.drawable.ic_launcher_foreground,
+            offset = Offset(100f, 100f),
+            rotation = 0f
+        )
+
+    ))
+        private set
+
+    fun addImage(res: Int) {
+        canvasItems = canvasItems + CanvasObject(res = res)
+    }
+
+    fun updateItem(updated: CanvasObject) {
+        canvasItems = canvasItems.map { if (it.id == updated.id) updated else it }
+    }
+
+    fun deleteItem(item: CanvasObject) {
+        canvasItems = canvasItems.filter { it.id != item.id }
+    }
 }

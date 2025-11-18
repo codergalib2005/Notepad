@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.animation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -98,7 +99,8 @@ dependencies {
         exclude(group = "com.atlassian.commonmark", module = "commonmark")
     }
 
-
+    implementation("com.google.accompanist:accompanist-navigation-material:0.34.0")
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.34.0")
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.runtime.livedata)
@@ -122,7 +124,8 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
 
     // Google drive authenticatio
-
+    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.0.0") // Use the latest version
@@ -145,6 +148,9 @@ dependencies {
     implementation ("androidx.work:work-runtime-ktx:2.9.0")
 
     implementation ("androidx.hilt:hilt-work:1.1.0")
+
+
+    implementation("me.saket.telephoto:zoomable:0.18.0")
 
     // RevenueCat - Now enabled and working
     implementation(libs.revenuecat)

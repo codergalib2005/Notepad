@@ -11,14 +11,14 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val Primary = Color("#966E46".toColorInt())
+val Primary = Color("#FB84A6".toColorInt())
 var ColorBlack = Color(0xFF000000)
 var ColorWhite = Color(0xFFFFFFFF)
 
 
 val Container2 = Color("#F2E3D7".toColorInt())
 val Container = Color("#F5EBE7".toColorInt())
-val PALETTE_COLORS = listOf<Color>(
+val PALETTE_COLORS = listOf(
     Color(0xFFFBD9D4), // Original
     Color(0xFFFCE38A),
     Color(0xFFFBFFB1),

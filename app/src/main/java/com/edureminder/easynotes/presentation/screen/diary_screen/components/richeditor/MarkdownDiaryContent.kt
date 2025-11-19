@@ -114,6 +114,7 @@ import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
 import com.mohamedrejeb.richeditor.model.RichTextState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 
 val textColors = listOf(
     Color("#ffffff".toColorInt()),
@@ -235,9 +236,12 @@ fun ThumbnailImage(
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
+
+    val file = File(context.filesDir, "images/$filePath")
+
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
-            .data(filePath)
+            .data(file)
             .size(200, 200)
             .build()
     )

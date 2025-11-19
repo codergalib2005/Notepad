@@ -401,23 +401,23 @@ fun EditDiaryContent(
                                 )
                             }
                         }
-                        Column {
-                            IconButton(
-                                onClick = {
-                                    editorViewModel.isMoreOptionsOpen = !editorViewModel.isMoreOptionsOpen
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = null,
-                                    tint = Color.Black,
-                                )
-                            }
-                            MoreOptions(
-                                moreOptions,
-                                editorViewModel
-                            )
-                        }
+//                        Column {
+//                            IconButton(
+//                                onClick = {
+//                                    editorViewModel.isMoreOptionsOpen = !editorViewModel.isMoreOptionsOpen
+//                                }
+//                            ) {
+//                                Icon(
+//                                    imageVector = Icons.Default.MoreHoriz,
+//                                    contentDescription = null,
+//                                    tint = Color.Black,
+//                                )
+//                            }
+//                            MoreOptions(
+//                                moreOptions,
+//                                editorViewModel
+//                            )
+//                        }
                     }
                 }
             }
@@ -529,13 +529,15 @@ fun EditDiaryContent(
                         contentPadding = PaddingValues(horizontal = 15.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        items(6) {
+                        items(editorViewModel.selectedImages) { image ->
                             ThumbnailImage(
                                 sharedTransitionScope,
                                 animatedContentScope,
-                                "/data/user/0/com.edureminder.easynotes/files/images/img_1763474113043.jpg",
+                                image,
                                 onClick = {
-                                    navController.navigate(Screen.ImageViewScreen("/data/user/0/com.edureminder.easynotes/files/images/img_1763474113043.jpg"))
+                                    navController.navigate(
+                                        Screen.ImageViewScreen(image)
+                                    )
                                 }
                             )
                         }
@@ -723,7 +725,7 @@ fun EditDiaryContent(
                                         val copiedFile = copyUriToInternalStorage(context, uri)
                                         copiedFile?.let {
                                             val fileName = copiedFile.name
-                                            Log.d("Log1", "Copied image path: ${fileName}")
+                                            editorViewModel.selectedImages += fileName
                                             // You can store `it.absolutePath` in your DB or ViewModel
                                         }
                                     }

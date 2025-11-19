@@ -55,6 +55,28 @@ data class CanvasObject(
     val isSelected: Boolean = false   // 🔥 NEW
 )
 
+data class Background(
+    val id: Int,
+    val res: Int
+)
+val backgrounds = listOf(
+    Background(1, R.drawable.foreground_empty),
+    Background(2, R.drawable.foreground_bluewatercolor),
+    Background(3, R.drawable.foreground_clouds),
+    Background(4, R.drawable.foreground_collage),
+    Background(5, R.drawable.foreground_birds),
+    Background(6, R.drawable.foreground_floral),
+    Background(7, R.drawable.foreground_flowers),
+    Background(8, R.drawable.foreground_heartflowers),
+    Background(9, R.drawable.foreground_hearts),
+    Background(10, R.drawable.foreground_kawaii),
+    Background(11, R.drawable.foreground_martianscenery),
+    Background(12, R.drawable.foreground_orange),
+    Background(13, R.drawable.foreground_pinkwatercolor),
+    Background(14, R.drawable.foreground_rabbit),
+    Background(15, R.drawable.foreground_stripes),
+    Background(16, R.drawable.foreground_winterscenery),
+)
 
 class NoteEditorViewModel : ViewModel() {
     // UI State
@@ -101,7 +123,7 @@ class NoteEditorViewModel : ViewModel() {
     var isOpenFolderList by mutableStateOf(false)
     var isNewFolderPopupOpen by mutableStateOf(false)
     var isMoreOptionsOpen by mutableStateOf(false)
-    var showThemeSheet by mutableStateOf(false)
+    var showThemeSheet by mutableStateOf(true)
     var showReminderDialog by  mutableStateOf(false)
     var selectedThemeTabIndex by mutableIntStateOf(0)
     fun getCurrentDate(): String {
@@ -145,6 +167,8 @@ class NoteEditorViewModel : ViewModel() {
             )
         )
     )
+    var selectedBackground by mutableStateOf(backgrounds.first())
+    var selectedImages by mutableStateOf(emptyList<String>())
 
 
     var isMarkdownToRichText by  mutableStateOf(true)

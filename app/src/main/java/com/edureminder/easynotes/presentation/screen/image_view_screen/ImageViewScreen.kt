@@ -32,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.platform.LocalContext
+import java.io.File
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -43,10 +44,11 @@ fun ImageViewScreen(
 ) {
     val zoomableState = rememberZoomableState()
     val context = LocalContext.current
+    val file = File(context.filesDir, "images/$imageUrl")
 
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
-            .data(imageUrl)
+            .data(file)
             .build()
     )
     with(sharedTransitionScope) {
@@ -60,10 +62,6 @@ fun ImageViewScreen(
                     painter = painter,
                     contentDescription = "Zoomable Image",
                     modifier = Modifier
-                        .sharedElement(
-                            sharedTransitionScope.rememberSharedContentState(key = imageUrl),
-                            animatedVisibilityScope = animatedContentScope
-                        )
                         .fillMaxSize()
                         .zoomable(zoomableState),
                     contentScale = ContentScale.Fit

@@ -2,6 +2,8 @@ package com.edureminder.easynotes.di
 
 import android.content.Context
 import com.edureminder.easynotes.room.AppDatabase
+import com.edureminder.easynotes.room.diary.DiaryDao
+import com.edureminder.easynotes.room.diary.DiaryRepository
 import com.edureminder.easynotes.room.folder.FolderDao
 import com.edureminder.easynotes.room.folder.FolderRepository
 import com.edureminder.easynotes.room.note.NoteDao
@@ -36,6 +38,13 @@ object DatabaseModule {
     @Provides
     fun provideNoteRepository(noteDao: NoteDao): NoteRepository =
         NoteRepository(noteDao)
+
+    @Provides
+    fun provideDiaryDao(db: AppDatabase): DiaryDao = db.diaryDao()
+
+    @Provides
+    fun provideDiaryRepository(diaryDao: DiaryDao): DiaryRepository =
+        DiaryRepository(diaryDao)
 
 
 }

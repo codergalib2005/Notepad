@@ -150,7 +150,6 @@ import com.edureminder.easynotes.presentation.navigation.Screen
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.richeditor.ImagePickerButton
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.richeditor.MarkdownDiaryContent
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.richeditor.TextStyleSheet
-import com.edureminder.easynotes.presentation.screen.diary_screen.components.richeditor.ThumbnailImage
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.richeditor.fontSizes
 import com.edureminder.easynotes.presentation.screen.edit_note.CanvasObject
 import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
@@ -279,7 +278,7 @@ fun EditDiaryContent(
                 }
             )
         )
-        if (screenFrom == "edit_note") {
+        if (screenFrom == "edit_diary") {
             add(
                 MoreOption(
                     icon = Icons.Default.Delete,

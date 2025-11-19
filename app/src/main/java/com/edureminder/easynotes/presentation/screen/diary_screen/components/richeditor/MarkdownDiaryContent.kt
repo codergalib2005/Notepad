@@ -227,77 +227,7 @@ fun MarkdownDiaryContent(
 
     }
 }
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Composable
-fun ThumbnailImage(
-    sharedTransitionScope: SharedTransitionScope,
-    animatedContentScope: AnimatedContentScope,
-    filePath: String,
-    onClick: () -> Unit
-) {
-    val context = LocalContext.current
 
-    val file = File(context.filesDir, "images/$filePath")
-
-    val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(context)
-            .data(file)
-            .size(200, 200)
-            .build()
-    )
-
-    Box(
-        modifier = Modifier
-            .size(100.dp)
-            .shadow(
-                elevation = 4.dp,
-                shape = MaterialTheme.shapes.small
-            )
-            .clip(MaterialTheme.shapes.small)
-            .background(Color.LightGray, RoundedCornerShape(4.dp))
-            .clickable {
-                onClick()
-            }
-    ) {
-        with(sharedTransitionScope) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .sharedElement(
-                        sharedTransitionScope.rememberSharedContentState(key = filePath),
-                        animatedVisibilityScope = animatedContentScope
-                    )
-                    .matchParentSize()
-            )
-        }
-
-        when (painter.state) {
-            is AsyncImagePainter.State.Loading -> {
-                Icon(
-                    imageVector = Icons.Default.ImageSearch,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .align(Alignment.Center),
-                    tint = Color.Gray
-                )
-            }
-            is AsyncImagePainter.State.Error -> {
-                Icon(
-                    imageVector = Icons.Default.BrokenImage,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .align(Alignment.Center),
-                    tint = Color.Gray
-                )
-            }
-            else -> {}
-        }
-    }
-}
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

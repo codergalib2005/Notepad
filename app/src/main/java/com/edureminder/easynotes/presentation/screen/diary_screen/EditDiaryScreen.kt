@@ -224,7 +224,7 @@ fun EditDiaryScreen(
                         animatedContentScope,
                         richTextState,
                         navController,
-                        "add_diary",
+                        "edit_diary",
                         onPDFGenerate,
                         editorViewModel,
                         folders,

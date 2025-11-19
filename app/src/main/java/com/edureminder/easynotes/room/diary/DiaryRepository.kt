@@ -34,6 +34,9 @@ class DiaryRepository(private val diaryDao: DiaryDao) {
 //            selectedType = selectedType
 //        )
 //    }
+    suspend fun getAllDiaries(): List<Diary> {
+        return diaryDao.fetchAllDiaries()
+    }
 
     // Upsert (Insert or Update) a note
     suspend fun upsertDiary(diary: Diary) {

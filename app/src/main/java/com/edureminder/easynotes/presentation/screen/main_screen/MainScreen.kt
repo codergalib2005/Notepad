@@ -38,7 +38,7 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
             name = "Diary",
             icon = R.drawable.diary,
             onClick = {
-                navController.navigate(Screen.EditNoteScreen)
+                navController.navigate(Screen.AddDiaryScreen)
             }
         ),
         TaskTypeItem(

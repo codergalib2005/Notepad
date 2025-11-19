@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "eeb8f35b54731e5142516432ff6c8b3c",
+    "identityHash": "65409c143ae820c53c9c76a4f427d281",
     "entities": [
       {
         "tableName": "folder",
@@ -215,7 +215,7 @@
       },
       {
         "tableName": "diary_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `body` TEXT NOT NULL, `favourite` INTEGER NOT NULL, `status` TEXT NOT NULL, `folderId` TEXT NOT NULL, `locked` INTEGER NOT NULL, `backgroundId` INTEGER NOT NULL, `stickers` TEXT NOT NULL, `images` TEXT NOT NULL, `syncStatus` TEXT NOT NULL, `lastSyncedAt` INTEGER, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `reminder_time` TEXT NOT NULL, `reminder_date` TEXT NOT NULL, `reminder_type` INTEGER NOT NULL, `repeat_days` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `body` TEXT NOT NULL, `favourite` INTEGER NOT NULL, `status` TEXT NOT NULL, `folderId` TEXT NOT NULL, `locked` INTEGER NOT NULL, `backgroundId` INTEGER NOT NULL, `stickers` TEXT NOT NULL, `images` TEXT NOT NULL, `syncStatus` TEXT NOT NULL, `lastSyncedAt` INTEGER, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `mood` INTEGER NOT NULL, `reminder_time` TEXT NOT NULL, `reminder_date` TEXT NOT NULL, `reminder_type` INTEGER NOT NULL, `repeat_days` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -301,6 +301,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "mood",
+            "columnName": "mood",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "reminderTime",
             "columnName": "reminder_time",
             "affinity": "TEXT",
@@ -336,7 +342,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eeb8f35b54731e5142516432ff6c8b3c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '65409c143ae820c53c9c76a4f427d281')"
     ]
   }
 }

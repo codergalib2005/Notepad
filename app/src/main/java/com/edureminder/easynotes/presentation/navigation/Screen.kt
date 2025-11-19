@@ -35,6 +35,13 @@ sealed class Screen {
     data object AddDiaryScreen: Screen()
 
     @Serializable
+    data class EditDiaryScreen(
+        val diaryId: String,
+        val encrypted: Boolean
+    ): Screen()
+
+
+    @Serializable
     data class ImageViewScreen(
         val imageUrl: String
     ): Screen()

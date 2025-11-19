@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.edureminder.easynotes.drive.AuthViewModel
 import com.edureminder.easynotes.presentation.screen.diary_screen.AddDiaryScreen
+import com.edureminder.easynotes.presentation.screen.diary_screen.EditDiaryScreen
 import com.edureminder.easynotes.presentation.screen.edit_note.AddNoteScreen
 import com.edureminder.easynotes.presentation.screen.edit_note.EditNoteScreen
 import com.edureminder.easynotes.presentation.screen.image_view_screen.ImageViewScreen
@@ -38,7 +39,7 @@ fun SetupNavGraph(
 
         NavHost(
             navController = navController,
-            startDestination = Screen.AddDiaryScreen
+            startDestination = Screen.MainScreen
         ) {
             composable<Screen.MainScreen> {
                 MainScreen(
@@ -60,6 +61,7 @@ fun SetupNavGraph(
                     onPDFGenerate = onPDFGenerate
                 )
             }
+
 
             composable<Screen.AddNoteScreen>(
                 enterTransition = { slideRightEnter() },
@@ -83,6 +85,22 @@ fun SetupNavGraph(
                     this@SharedTransitionLayout,
                     this@composable,
                     navController,
+                    onPDFGenerate = onPDFGenerate
+                )
+            }
+
+            composable<Screen.EditDiaryScreen>(
+                enterTransition = { slideLeftEnter() },
+                exitTransition = { slideLeftExit() },
+                popEnterTransition = { slideRightEnter() },
+                popExitTransition = { slideRightExit() }
+            ) {
+                val arg = it.toRoute<Screen.EditDiaryScreen>()
+                EditDiaryScreen(
+                    this@SharedTransitionLayout,
+                    this@composable,
+                    navController = navController,
+                    diaryID = arg.diaryId,
                     onPDFGenerate = onPDFGenerate
                 )
             }

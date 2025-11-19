@@ -26,6 +26,7 @@ data class Diary(
     @ColumnInfo(name = "lastSyncedAt") var lastSyncedAt: Long? = null,
     @ColumnInfo(name = "createdAt") val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "updatedAt") override var updatedAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "mood") val mood: Int = 1,
 
     /**
      * Reminder

@@ -41,6 +41,8 @@ import com.edureminder.easynotes.datastore.SettingsStore
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.BackgroundBottomSheet
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.EditDiaryContent
 import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
+import com.edureminder.easynotes.room.diary.Diary
+import com.edureminder.easynotes.room.diary.DiaryViewModel
 import com.edureminder.easynotes.room.folder.FolderViewModel
 import com.edureminder.easynotes.room.note.Note
 import com.edureminder.easynotes.room.note.NoteViewModel
@@ -53,6 +55,8 @@ import com.edureminder.easynotes.work.note.cancelScheduledExactNoteWorkerIfExist
 import com.edureminder.easynotes.work.note.scheduleExactNoteWorker
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.text.ifEmpty
 
@@ -80,7 +84,7 @@ fun AddDiaryScreen(
 
 
     val context = LocalContext.current
-    val notesViewModel: NoteViewModel = hiltViewModel()
+    val diaryViewModel: DiaryViewModel = hiltViewModel()
     val editorViewModel: NoteEditorViewModel = viewModel()
     val folderViewModel: FolderViewModel = hiltViewModel()
     val richTextState = rememberRichTextState()
@@ -106,42 +110,46 @@ fun AddDiaryScreen(
         }
     }
 
-    fun onSaveNote() {
+    fun onSaveDiary() {
         if (hasSaved) return
         coroutineScope.launch {
 
             val selectedDaysString = editorViewModel.repeatableDays
                 .filter { it.isSelected }
                 .joinToString(",") { it.day.toString() }
+            val images = Json.encodeToString(editorViewModel.selectedImages)
+            val canvas = Json.encodeToString(editorViewModel.canvasItems)
 
-            val newNote = Note(
+            val newDiary = Diary(
                 title = editorViewModel.title.ifEmpty { "Untitled" },
                 body = richTextState.toHtml(),
                 isFavourite = editorViewModel.isPinned,
                 isLocked = editorViewModel.isLocked,
                 folderId = editorViewModel.selectedFolder?.id ?: "0",
-                type = Type.NOTE,
-                themeId = editorViewModel.theme.id,
+//                mood = editorViewModel.selectedMood.id,
+                backgroundId = editorViewModel.selectedBackground.id,
+                images = images,
+                stickers = canvas,
                 reminderTime = editorViewModel.timeText,
                 reminderDate = editorViewModel.dateText,
                 reminderType = editorViewModel.selectReminderType.id,
                 repeatDays = selectedDaysString,
             )
-            notesViewModel.upsertNote(newNote)
+            diaryViewModel.upsertDiary(newDiary)
             hasSaved = true
             navController.navigateUp()
 
-            if (newNote.reminderType == 2) {
+            if (newDiary.reminderType == 2) {
                 // ✅ Start WorkManager
                 scheduleExactNoteWorker(
                     context = context,
                     timeString = editorViewModel.timeText,
                     selectedDaysString = selectedDaysString,
-                    uniqueWorkId = newNote.id,
+                    uniqueWorkId = newDiary.id,
                     date = editorViewModel.dateText
                 )
             } else {
-                cancelScheduledExactNoteWorkerIfExists(context, newNote.id)
+                cancelScheduledExactNoteWorkerIfExists(context, newDiary.id)
             }
         }
     }
@@ -203,12 +211,12 @@ fun AddDiaryScreen(
                         animatedContentScope,
                         richTextState,
                         navController,
-                        "add_note",
+                        "add_diary",
                         onPDFGenerate,
                         editorViewModel,
                         folders,
                         folderViewModel,
-                        onSaveNote = ::onSaveNote,
+                        onSaveDiary = ::onSaveDiary,
                         backgroundColor,
                         onSnackbarUpdate = { message ->
                             scope.launch {

@@ -154,6 +154,7 @@ import com.edureminder.easynotes.presentation.screen.diary_screen.components.ric
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.richeditor.fontSizes
 import com.edureminder.easynotes.presentation.screen.edit_note.CanvasObject
 import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
+import com.edureminder.easynotes.presentation.screen.edit_note.OffsetC
 import com.edureminder.easynotes.presentation.screen.edit_note.SelectedDay
 import com.edureminder.easynotes.presentation.screen.edit_note.components.MoreOption
 import com.edureminder.easynotes.presentation.screen.edit_note.components.TextEditorLinkDialog
@@ -190,7 +191,7 @@ fun EditDiaryContent(
     editorViewModel: NoteEditorViewModel,
     folders: List<Folder>,
     folderViewModel: FolderViewModel,
-    onSaveNote: () -> Unit,
+    onSaveDiary: () -> Unit,
     backgroundColor: Color,
     onSnackbarUpdate: (String) -> Unit,
 ) {
@@ -377,7 +378,7 @@ fun EditDiaryContent(
                                 .clip(CircleShape)
                                 .background(Primary)
                                 .clickable {
-                                    onSaveNote()
+                                    onSaveDiary()
                                     editorViewModel.isEditable = false
                                 }
                                 .padding(horizontal = 13.dp, vertical = 5.dp)
@@ -892,7 +893,7 @@ fun CanvasItem(
                             newX = newX.coerceIn(0f, maxWidthPx - scaledSize)
                             newY = newY.coerceIn(0f, maxHeightPx - scaledSize)
 
-                            offset = Offset(newX, newY)
+                            offset = OffsetC(newX, newY)
                             onUpdate(item.copy(offset = offset))
                         }
                     )

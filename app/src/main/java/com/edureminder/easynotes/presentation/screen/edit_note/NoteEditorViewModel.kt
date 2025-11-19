@@ -46,13 +46,18 @@ data class SelectedDay(
     val day: Int,
     val isSelected: Boolean = true
 )
+
+@Serializable
+data class OffsetC(val x: Float, val y: Float)
+
+@Serializable
 data class CanvasObject(
     val id: String = UUID.randomUUID().toString(),
     val res: Int,
-    val offset: Offset = Offset(100f, 100f),
+    val offset: OffsetC = OffsetC(100f, 100f),
     val rotation: Float = 0f,
     val scale: Float = 1f,
-    val isSelected: Boolean = false   // 🔥 NEW
+    val isSelected: Boolean = false
 )
 
 data class Background(
@@ -183,14 +188,18 @@ class NoteEditorViewModel : ViewModel() {
 
 //    val isMoreOptionsOpen = remember { mutableStateOf(false) }
 
+
+    fun changeBackground(backgroundId: Int) {
+        backgrounds.find { it.id == backgroundId }?.let {
+            selectedBackground = it
+        } ?: run {
+            selectedBackground = backgrounds.first()
+        }
+    }
     /**
      * Canvas
      */
-    var canvasItems by mutableStateOf(listOf<CanvasObject>(
-
-
-    ))
-        private set
+    var canvasItems by mutableStateOf(listOf<CanvasObject>())
 
     fun addImage(res: Int) {
         val newItem = CanvasObject(res = res).copy(isSelected = true)

@@ -97,13 +97,12 @@ fun DiaryView () {
         }
 
         LazyColumn(
-            contentPadding = PaddingValues(vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(17.dp)
+            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(17.dp),
         ) {
             item {
                 Box (
                     modifier = Modifier
-                        .padding(horizontal = 10.dp)
                         .fillMaxWidth()
                         .height(230.dp)
                         .shadow(
@@ -140,16 +139,6 @@ fun DiaryView () {
             item {
                 Row (
                     modifier = Modifier
-                        .drawBehind {
-                            val strokeWidthPx = 5f
-                            val x = size.width - strokeWidthPx / 2
-                            drawLine(
-                                color = Color.White, start = Offset(x, 0f),
-                                end = Offset(x, size.height),
-                                strokeWidth = strokeWidthPx,
-                                cap = StrokeCap.Round
-                            )
-                        }
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)

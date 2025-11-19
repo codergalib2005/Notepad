@@ -81,6 +81,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
@@ -100,6 +101,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
@@ -190,6 +192,13 @@ fun EditDiaryContent(
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
+    )
+    val stickerSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { newState ->
+            // Block hiding by user drag
+            newState != SheetValue.Hidden
+        }
     )
     val baseLimit = /**if (isPro) 10 else 15 */ if (isPro) 50000 else 5000
     val maxAllowedLength = baseLimit + 500  // Let them finish naturally
@@ -716,9 +725,35 @@ fun EditDiaryContent(
                                             editorViewModel.isListSelectorSheetOpen = true
                                         }
                                     },
-                                    isSelected = richTextState.isUnorderedList,
+                                    isSelected = false,
                                     icon = Icons.AutoMirrored.Outlined.FormatListBulleted,
                                 )
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clickable (
+                                            indication = null,
+                                            interactionSource = remember { MutableInteractionSource() }
+                                        ) {
+                                            scope.launch {
+                                                keyboardController?.hide()
+                                                focusManager.clearFocus()
+
+                                                delay(100)
+                                                editorViewModel.isStickersSelectorSheetOpen = true
+                                            }
+                                        },
+                                    contentAlignment = Alignment.Center
+
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.sticker_icon_dark),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(23.dp),
+                                        tint = Color.Black
+                                    )
+                                }
                             }
                         }
                     }
@@ -755,15 +790,21 @@ fun EditDiaryContent(
         onOpenKeyboard = {
             scope.launch {
                 editorViewModel.isListSelectorSheetOpen = false // close sheet
-
-                delay(120)                         // Wait for sheet to hide animation
-                editorFocusRequester.requestFocus()      // Restore focus to editor
-
-                keyboardController?.show()
+            }
+        }
+    )
+    StickersStyleSheet(
+        editorViewModel,
+        stickerSheetState,
+        onOpenKeyboard = {
+            scope.launch {
+                editorViewModel.isStickersSelectorSheetOpen = false // close sheet
             }
         }
     )
 }
+
+
 @Composable
 fun InfiniteCanvas(
     editorViewModel: NoteEditorViewModel
@@ -900,7 +941,7 @@ fun AnimatedCursorTextField(
             }
         },
         modifier = Modifier
-            .padding(horizontal = 10.dp)
+            .padding(horizontal = 13.dp)
     )
 }
 @OptIn(ExperimentalMaterial3Api::class)

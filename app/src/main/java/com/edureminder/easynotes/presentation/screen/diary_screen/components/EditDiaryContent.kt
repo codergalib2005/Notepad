@@ -18,10 +18,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -99,14 +101,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -116,6 +122,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -137,6 +144,7 @@ import androidx.navigation.NavHostController
 import com.edureminder.easynotes.R
 import com.edureminder.easynotes.datastore.SettingsStore
 import com.edureminder.easynotes.lib.richeditor.RichTextStyleButton
+import com.edureminder.easynotes.lib.toPx
 import com.edureminder.easynotes.presentation.components.MaterialTimePicker
 import com.edureminder.easynotes.presentation.navigation.Screen
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.richeditor.ImagePickerButton
@@ -474,7 +482,7 @@ fun EditDiaryContent(
                     }
                 }
             }
-            Column(
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
@@ -484,44 +492,53 @@ fun EditDiaryContent(
                         enabled = !editorViewModel.isEditable
                     ){
                         editorViewModel.isEditable = true
+                    }.pointerInput(Unit) {
+                        detectTapGestures {
+                            editorViewModel.deselectAll()
+                            if(!editorViewModel.isEditable){
+                                editorViewModel.isEditable = true
+                            }
+                        }
                     }
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
-                AnimatedCursorTextField(
-                    text = editorViewModel.title,
-                    onTextChange = {
-                        if (it.length <= 65) handleTextChange(it)
-                    },
-                    hint = "Enter title...",
-                    enabled = editorViewModel.isEditable
-                )
-                MarkdownDiaryContent(
-                    richTextState,
-                    editorFocusRequester,
-                    theme,
-                    editorViewModel,
-                    backgroundColor,
-                    navController,
-                    mainViewModel,
-                )
-                LazyRow(
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .zIndex(5f),
-                    contentPadding = PaddingValues(horizontal = 15.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(6) {
-                        ThumbnailImage(
-                            sharedTransitionScope,
-                            animatedContentScope,
-                            "/data/user/0/com.edureminder.easynotes/files/images/img_1763474113043.jpg",
-                            onClick = {
-                                navController.navigate(Screen.ImageViewScreen("/data/user/0/com.edureminder.easynotes/files/images/img_1763474113043.jpg"))
-                            }
-                        )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ){
+                    AnimatedCursorTextField(
+                        text = editorViewModel.title,
+                        onTextChange = {
+                            if (it.length <= 65) handleTextChange(it)
+                        },
+                        hint = "Enter title...",
+                        enabled = editorViewModel.isEditable
+                    )
+                    MarkdownDiaryContent(
+                        richTextState,
+                        editorFocusRequester,
+                        theme,
+                        editorViewModel,
+                        backgroundColor,
+                        navController,
+                        mainViewModel,
+                    )
+                    LazyRow(
+                        modifier = Modifier
+                            .padding(top = 10.dp),
+                        contentPadding = PaddingValues(horizontal = 15.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(6) {
+                            ThumbnailImage(
+                                sharedTransitionScope,
+                                animatedContentScope,
+                                "/data/user/0/com.edureminder.easynotes/files/images/img_1763474113043.jpg",
+                                onClick = {
+                                    navController.navigate(Screen.ImageViewScreen("/data/user/0/com.edureminder.easynotes/files/images/img_1763474113043.jpg"))
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -809,102 +826,152 @@ fun EditDiaryContent(
 fun InfiniteCanvas(
     editorViewModel: NoteEditorViewModel
 ) {
-    // HUGE height so items can be moved anywhere
-    // You can use 5000.dp or calculate dynamically.
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(4000.dp)  // 🔥 The trick: large invisible canvas
-            .background(Color.Transparent)
+            .fillMaxSize()
+            .zIndex(10f)  // 🔥 Canvas gets tap priority
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    editorViewModel.deselectAll()
+                }
+            }
     ) {
         editorViewModel.canvasItems.forEach { item ->
             CanvasItem(
                 item = item,
-                onUpdate = {  editorViewModel.updateItem(it) },
-                onDelete = { editorViewModel.deleteItem(it) }
+                onUpdate = { editorViewModel.updateItem(it) },
+                onDelete = { editorViewModel.deleteItem(it) },
+                onSelect = { editorViewModel.selectItem(it) }
             )
         }
     }
 }
+
 @Composable
 fun CanvasItem(
     item: CanvasObject,
     onUpdate: (CanvasObject) -> Unit,
-    onDelete: (CanvasObject) -> Unit
+    onDelete: (CanvasObject) -> Unit,
+    onSelect: (CanvasObject) -> Unit
 ) {
     var offset by remember { mutableStateOf(item.offset) }
     var rotation by remember { mutableStateOf(item.rotation) }
     var scale by remember { mutableStateOf(item.scale) }
 
-    Box(
-        modifier = Modifier
-            .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-            .graphicsLayer(
-                rotationZ = rotation,
-                scaleX = scale,
-                scaleY = scale
-            )
-            .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    change.consume()
-                    offset += dragAmount
-                    onUpdate(item.copy(offset = offset))
+    BoxWithConstraints {
+        val maxWidthPx = constraints.maxWidth.toFloat()
+        val maxHeightPx = constraints.maxHeight.toFloat()
+        val itemSizePx = 140.dp.toPx()
+
+        Box(
+            modifier = Modifier
+                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+                .graphicsLayer(
+                    rotationZ = rotation,
+                    scaleX = scale,
+                    scaleY = scale
+                )
+                // Tap to select
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = {
+                            onSelect(item)    // 🔥 select immediately
+                        },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+
+                            var newX = offset.x + dragAmount.x
+                            var newY = offset.y + dragAmount.y
+
+                            val scaledSize = itemSizePx * scale
+                            newX = newX.coerceIn(0f, maxWidthPx - scaledSize)
+                            newY = newY.coerceIn(0f, maxHeightPx - scaledSize)
+
+                            offset = Offset(newX, newY)
+                            onUpdate(item.copy(offset = offset))
+                        }
+                    )
                 }
+
+        ) {
+            // Dotted border if selected
+            if (item.isSelected) {
+                Box(
+                    modifier = Modifier
+                        .size(140.dp)
+                        .drawBehind {
+                            val strokeWidth = 3.dp.toPx()
+                            val dash = floatArrayOf(12f, 12f)
+                            drawRoundRect(
+                                color = Color.Gray,
+                                style = Stroke(
+                                    width = strokeWidth,
+                                    pathEffect = PathEffect.dashPathEffect(dash)
+                                ),
+                                cornerRadius = CornerRadius(10f)
+                            )
+                        }
+                )
             }
-    ) {
-        Image(
-            painter = painterResource(id = item.res),
-            contentDescription = null,
-            modifier = Modifier.size(140.dp)
-        )
 
-        // close
-        Icon(
-            imageVector = Icons.Default.Close,
-            contentDescription = "",
-            tint = Color.Red,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .size(32.dp)
-                .clickable { onDelete(item) }
-        )
+            // Image
+            Image(
+                painter = painterResource(id = item.res),
+                contentDescription = null,
+                modifier = Modifier.size(140.dp)
+            )
 
-        // rotate
-        Icon(
-            imageVector = Icons.Default.RotateRight,
-            contentDescription = "",
-            tint = Color.Magenta,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(32.dp)
-                .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        change.consume()
-                        rotation += dragAmount.x
-                        onUpdate(item.copy(rotation = rotation))
-                    }
-                }
-        )
+            // Controllers
+            if (item.isSelected) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "",
+                    tint = Color.Red,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .size(30.dp)
+                        .clickable { onDelete(item) }
+                )
 
-        // scale
-        Icon(
-            imageVector = Icons.Default.Scale,
-            contentDescription = "",
-            tint = Color.Blue,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .size(32.dp)
-                .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        change.consume()
-                        scale += dragAmount.x * 0.01f
-                        scale = scale.coerceIn(0.5f, 3f)
-                        onUpdate(item.copy(scale = scale))
-                    }
-                }
-        )
+                Icon(
+                    imageVector = Icons.Default.RotateRight,
+                    contentDescription = "",
+                    tint = Color(0xFFFF6FB5),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(30.dp)
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                rotation += dragAmount.x
+                                onUpdate(item.copy(rotation = rotation))
+                            }
+                        }
+                )
+
+                Icon(
+                    imageVector = Icons.Default.Scale,
+                    contentDescription = "",
+                    tint = Color.Blue,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(30.dp)
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                scale += dragAmount.x * 0.01f
+                                scale = scale.coerceIn(0.5f, 3f)
+                                onUpdate(item.copy(scale = scale))
+                            }
+                        }
+                )
+            }
+        }
     }
 }
+
+
+
 
 @Composable
 fun AnimatedCursorTextField(

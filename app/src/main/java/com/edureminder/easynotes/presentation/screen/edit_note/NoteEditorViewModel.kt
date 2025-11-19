@@ -51,8 +51,10 @@ data class CanvasObject(
     val res: Int,
     val offset: Offset = Offset(100f, 100f),
     val rotation: Float = 0f,
-    val scale: Float = 1f
+    val scale: Float = 1f,
+    val isSelected: Boolean = false   // 🔥 NEW
 )
+
 
 class NoteEditorViewModel : ViewModel() {
     // UI State
@@ -161,18 +163,16 @@ class NoteEditorViewModel : ViewModel() {
      * Canvas
      */
     var canvasItems by mutableStateOf(listOf<CanvasObject>(
-        CanvasObject(
-            res = R.drawable.ic_launcher_foreground,
-            offset = Offset(100f, 100f),
-            rotation = 0f
-        )
+
 
     ))
         private set
 
     fun addImage(res: Int) {
-        canvasItems = canvasItems + CanvasObject(res = res)
+        val newItem = CanvasObject(res = res).copy(isSelected = true)
+        canvasItems = canvasItems.map { it.copy(isSelected = false) } + newItem
     }
+
 
     fun updateItem(updated: CanvasObject) {
         canvasItems = canvasItems.map { if (it.id == updated.id) updated else it }
@@ -180,5 +180,14 @@ class NoteEditorViewModel : ViewModel() {
 
     fun deleteItem(item: CanvasObject) {
         canvasItems = canvasItems.filter { it.id != item.id }
+    }
+    fun selectItem(item: CanvasObject) {
+        canvasItems = canvasItems.map {
+            if (it.id == item.id) it.copy(isSelected = true)
+            else it.copy(isSelected = false)
+        }
+    }
+    fun deselectAll() {
+        canvasItems = canvasItems.map { it.copy(isSelected = false) }
     }
 }

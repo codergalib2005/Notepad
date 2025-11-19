@@ -49,7 +49,7 @@ hilt_worker = "1.0.0"
 timber_version = "5.0.1"
 purchases = "8.15.1"
 androidx-macro-benchmark = "1.2.2"
-composeMaterial = "1.4.1"
+composeMaterial = "1.5.0-alpha08"
 coil = "2.5.0"
 appcompatVersion = "1.7.1"
 

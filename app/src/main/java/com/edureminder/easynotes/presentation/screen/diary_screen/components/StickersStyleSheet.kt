@@ -587,6 +587,7 @@ fun StickersStyleSheet(
                         items(group.list){ sticker ->
                             StickerItem(
                                 sticker = sticker,
+                                editorViewModel
                             )
                         }
                     }
@@ -597,10 +598,20 @@ fun StickersStyleSheet(
 }
 
 @Composable
-fun StickerItem(sticker: Sticker) {
+fun StickerItem(
+    sticker: Sticker,
+    editorViewModel: NoteEditorViewModel
+) {
     Box (
         modifier = Modifier
-            .size(95.dp),
+            .size(95.dp)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ){
+                editorViewModel.addImage(sticker.sticker)
+                editorViewModel.isStickersSelectorSheetOpen = false
+            },
         contentAlignment = Alignment.TopEnd
     ) {
         Image(

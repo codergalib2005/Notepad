@@ -3,6 +3,8 @@ package com.edureminder.easynotes.presentation.screen.main_screen.diary_views
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.edureminder.easynotes.R
 import com.edureminder.easynotes.presentation.navigation.Screen
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.SmallThumbnailImage
@@ -40,12 +44,21 @@ import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun DiaryItem(diary: Diary) {
+fun DiaryItem(
+    diary: Diary,
+    navController: NavController
+) {
     val restoredImages = Json.decodeFromString<List<String>>(diary.images)
 
     Row (
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ){
+                navController.navigate(Screen.EditDiaryScreen(diary.id, encrypted = true))
+            },
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         /**

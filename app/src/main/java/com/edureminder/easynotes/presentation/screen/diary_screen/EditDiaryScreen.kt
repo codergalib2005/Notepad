@@ -2,6 +2,7 @@ package com.edureminder.easynotes.presentation.screen.diary_screen
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -129,8 +130,8 @@ fun EditDiaryScreen(
         val restoredCanvas: List<CanvasObject> = Json.decodeFromString(currentDiary.stickers)
 
 
-        editorViewModel.canvasItems = restoredCanvas
-        editorViewModel.selectedImages = restoredImages
+//        editorViewModel.canvasItems = restoredCanvas
+//        editorViewModel.selectedImages = restoredImages
         editorViewModel.repeatableDays = editorViewModel.repeatableDays.map { day ->
             day.copy(isSelected = dbDays.contains(day.day))
         }

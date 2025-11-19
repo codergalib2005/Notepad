@@ -66,7 +66,7 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                 .fillMaxSize()
         ) {
             when(selectedTab){
-                3 -> DiaryView()
+                3 -> DiaryView(navController)
             }
 
             Box (

@@ -37,13 +37,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.edureminder.easynotes.R
 import com.edureminder.easynotes.room.diary.Diary
 import com.edureminder.easynotes.room.diary.DiaryViewModel
 import com.edureminder.easynotes.ui.Primary
 
 @Composable
-fun DiaryView () {
+fun DiaryView (navController: NavController) {
     val diaryViewModel: DiaryViewModel = hiltViewModel()
     // State for diaries
     var diaries by remember { mutableStateOf<List<Diary>>(emptyList()) }
@@ -152,15 +153,9 @@ fun DiaryView () {
                 }
             }
             items(diaries){ diary ->
-                DiaryItem(diary)
+                DiaryItem(diary, navController)
             }
         }
 
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun DiaryPreview () {
-    DiaryView()
 }

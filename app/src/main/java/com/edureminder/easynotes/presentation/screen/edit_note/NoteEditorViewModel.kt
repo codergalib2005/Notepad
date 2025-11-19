@@ -152,7 +152,7 @@ class NoteEditorViewModel : ViewModel() {
     var isTextBackgroundColorPickerOpen by mutableStateOf(false)
     var isTextFontSizePickerOpen by mutableStateOf(false)
     var isListSelectorSheetOpen by mutableStateOf(false)
-    var isStickersSelectorSheetOpen by mutableStateOf(true)
+    var isStickersSelectorSheetOpen by mutableStateOf(false)
     var selectedEmoji by mutableStateOf("")
 
     var selectedCategory by mutableStateOf("Color")

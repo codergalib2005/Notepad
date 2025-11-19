@@ -343,8 +343,6 @@ fun ImagePickerButton(
             tint = Color.Black,
             modifier = Modifier
                 .size(23.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
-                .background(Color.White)
         )
     }
 }

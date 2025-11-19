@@ -581,149 +581,96 @@ fun EditDiaryContent(
                         )
                     }
 
-                    Column {
-                        AnimatedVisibility(
-                            visible = isMaxLengthReached,
-                            modifier = Modifier
-                                .zIndex(2f)
-                                .fillMaxWidth()
-                                .background(Color.White)
-                        ) {
-                            Column {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(40.dp)
-                                        .padding(horizontal = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    if (!isPro) {
-                                        Text(
-                                            text = "Upgrade Pro for more space",
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = Color.Black
-                                        )
-                                        Box(
-                                            modifier = Modifier
-                                                .clip(CircleShape)
-                                                .background(Color.Red)
-                                                .clickable(
-                                                    interactionSource = remember { MutableInteractionSource() },
-                                                    indication = null
-                                                ) {
-                                                    navController.navigate(Screen.Subscription) {
-                                                        popUpTo(Screen.MainScreen) {
-                                                            inclusive = false
+                    if(editorViewModel.isEditable){
+                        Column {
+                            AnimatedVisibility(
+                                visible = isMaxLengthReached,
+                                modifier = Modifier
+                                    .zIndex(2f)
+                                    .fillMaxWidth()
+                                    .background(Color.White)
+                            ) {
+                                Column {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(40.dp)
+                                            .padding(horizontal = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        if (!isPro) {
+                                            Text(
+                                                text = "Upgrade Pro for more space",
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = Color.Black
+                                            )
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(CircleShape)
+                                                    .background(Color.Red)
+                                                    .clickable(
+                                                        interactionSource = remember { MutableInteractionSource() },
+                                                        indication = null
+                                                    ) {
+                                                        navController.navigate(Screen.Subscription) {
+                                                            popUpTo(Screen.MainScreen) {
+                                                                inclusive = false
+                                                            }
                                                         }
                                                     }
-                                                }
-                                                .padding(horizontal = 18.dp, vertical = 7.dp),
-                                        ) {
+                                                    .padding(horizontal = 18.dp, vertical = 7.dp),
+                                            ) {
+                                                Text(
+                                                    text = "Pro",
+                                                    fontSize = 15.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = Color.White,
+                                                )
+                                            }
+                                        } else {
                                             Text(
-                                                text = "Pro",
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White,
+                                                text = "Max characters reached",
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = Color.Black
                                             )
                                         }
-                                    } else {
-                                        Text(
-                                            text = "Max characters reached",
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = Color.Black
-                                        )
                                     }
+                                    HorizontalDivider(
+                                        color = Primary.copy(0.1f)
+                                    )
                                 }
-                                HorizontalDivider(
-                                    color = Primary.copy(0.1f)
-                                )
                             }
-                        }
 
-                        Row(
-                            modifier = Modifier
-                                .zIndex(1f)
-                                .fillMaxWidth()
-                                .background(Color.White)
-                                .background(Primary.copy(0.1f))
-                                .padding(start = 5.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(35.dp)
-                                    .clip(MaterialTheme.shapes.extraSmall)
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) {
-                                        editorViewModel.showThemeSheet = true
-                                    },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.palette),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(25.dp)
-                                )
-                            }
-                            Box(
-                                Modifier
-                                    .height(24.dp)
-                                    .width(1.dp)
-                                    .background(Color(0x48393B3D))
-                            )
                             Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .horizontalScroll(rememberScrollState()),
+                                    .zIndex(1f)
+                                    .fillMaxWidth()
+                                    .background(Color.White)
+                                    .background(Primary.copy(0.1f))
+                                    .padding(start = 5.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-
-                                Box(
-                                    Modifier
-                                        .height(24.dp)
-                                        .width(1.dp)
-                                        .background(Color(0x48393B3D))
-                                )
-                                RichTextStyleButton(
-                                    onClick = {
-                                        openLinkDialog.value = true
-                                    },
-                                    isSelected = richTextState.isLink,
-                                    icon = Icons.Outlined.Link
-                                )
                                 Box(
                                     modifier = Modifier
-                                        .size(40.dp)
+                                        .size(35.dp)
+                                        .clip(MaterialTheme.shapes.extraSmall)
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = null
                                         ) {
-                                            editorViewModel.isTextFontSizePickerOpen =
-                                                !editorViewModel.isTextFontSizePickerOpen
+                                            editorViewModel.showThemeSheet = true
                                         },
-                                    contentAlignment = Alignment.Center
+                                    contentAlignment = Alignment.Center,
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.TextFields,
+                                    Image(
+                                        painter = painterResource(id = R.drawable.palette),
                                         contentDescription = null,
-                                        tint = Color.Black,
                                         modifier = Modifier
-                                            .size(23.dp)
+                                            .size(25.dp)
                                     )
-                                }
-                                ImagePickerButton { uri ->
-                                    val copiedFile = copyUriToInternalStorage(context, uri)
-                                    copiedFile?.let {
-                                        Log.d("Log1", "Copied image path: ${it.absolutePath}")
-                                        // You can store `it.absolutePath` in your DB or ViewModel
-                                    }
                                 }
                                 Box(
                                     Modifier
@@ -731,45 +678,101 @@ fun EditDiaryContent(
                                         .width(1.dp)
                                         .background(Color(0x48393B3D))
                                 )
-
-                                RichTextStyleButton(
-                                    onClick = {
-                                        scope.launch {
-                                            keyboardController?.hide()
-                                            focusManager.clearFocus()
-
-                                            delay(100)
-                                            editorViewModel.isListSelectorSheetOpen = true
-                                        }
-                                    },
-                                    isSelected = false,
-                                    icon = Icons.AutoMirrored.Outlined.FormatListBulleted,
-                                )
-                                Box(
+                                Row(
                                     modifier = Modifier
-                                        .size(40.dp)
-                                        .clickable (
-                                            indication = null,
-                                            interactionSource = remember { MutableInteractionSource() }
-                                        ) {
+                                        .weight(1f)
+                                        .horizontalScroll(rememberScrollState()),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+
+                                    Box(
+                                        Modifier
+                                            .height(24.dp)
+                                            .width(1.dp)
+                                            .background(Color(0x48393B3D))
+                                    )
+                                    RichTextStyleButton(
+                                        onClick = {
+                                            openLinkDialog.value = true
+                                        },
+                                        isSelected = richTextState.isLink,
+                                        icon = Icons.Outlined.Link
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = null
+                                            ) {
+                                                editorViewModel.isTextFontSizePickerOpen =
+                                                    !editorViewModel.isTextFontSizePickerOpen
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.TextFields,
+                                            contentDescription = null,
+                                            tint = Color.Black,
+                                            modifier = Modifier
+                                                .size(23.dp)
+                                        )
+                                    }
+                                    ImagePickerButton { uri ->
+                                        val copiedFile = copyUriToInternalStorage(context, uri)
+                                        copiedFile?.let {
+                                            val fileName = copiedFile.name
+                                            Log.d("Log1", "Copied image path: ${fileName}")
+                                            // You can store `it.absolutePath` in your DB or ViewModel
+                                        }
+                                    }
+                                    Box(
+                                        Modifier
+                                            .height(24.dp)
+                                            .width(1.dp)
+                                            .background(Color(0x48393B3D))
+                                    )
+
+                                    RichTextStyleButton(
+                                        onClick = {
                                             scope.launch {
                                                 keyboardController?.hide()
                                                 focusManager.clearFocus()
 
                                                 delay(100)
-                                                editorViewModel.isStickersSelectorSheetOpen = true
+                                                editorViewModel.isListSelectorSheetOpen = true
                                             }
                                         },
-                                    contentAlignment = Alignment.Center
-
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.sticker_icon_dark),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(23.dp),
-                                        tint = Color.Black
+                                        isSelected = false,
+                                        icon = Icons.AutoMirrored.Outlined.FormatListBulleted,
                                     )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clickable (
+                                                indication = null,
+                                                interactionSource = remember { MutableInteractionSource() }
+                                            ) {
+                                                scope.launch {
+                                                    keyboardController?.hide()
+                                                    focusManager.clearFocus()
+
+                                                    delay(100)
+                                                    editorViewModel.isStickersSelectorSheetOpen = true
+                                                }
+                                            },
+                                        contentAlignment = Alignment.Center
+
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.sticker_icon_dark),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(23.dp),
+                                            tint = Color.Black
+                                        )
+                                    }
                                 }
                             }
                         }

@@ -3,11 +3,14 @@ package com.edureminder.easynotes.presentation.screen.main_screen.diary_views
 import android.graphics.BlurMaskFilter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +20,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +65,7 @@ fun DiaryView (navController: NavController) {
     val context = LocalContext.current
     val diaryViewModel: DiaryViewModel = hiltViewModel()
     val searchText = remember { mutableStateOf("") }
+    var isSearchOpen by remember { mutableStateOf(true) }
 
     // Load filter preferences
     val diaryFilter = remember { DiaryFilterPreference(context) }
@@ -99,19 +106,21 @@ fun DiaryView (navController: NavController) {
                 .fillMaxWidth()
                 .height(50.dp)
                 .drawBehind {
-                    val shadowHeight = 12.dp.toPx() // adjust shadow thickness
-                    drawIntoCanvas { canvas ->
-                        val paint = Paint().asFrameworkPaint()
-                        paint.color = android.graphics.Color.BLACK
-                        paint.alpha = (0.2f * 255).toInt()
-                        paint.maskFilter = BlurMaskFilter(shadowHeight, BlurMaskFilter.Blur.NORMAL)
-                        canvas.nativeCanvas.drawRect(
-                            0f,
-                            size.height - shadowHeight,
-                            size.width,
-                            size.height,
-                            paint
-                        )
+                    if(isScrolled){
+                        val shadowHeight = 12.dp.toPx() // adjust shadow thickness
+                        drawIntoCanvas { canvas ->
+                            val paint = Paint().asFrameworkPaint()
+                            paint.color = android.graphics.Color.BLACK
+                            paint.alpha = (0.2f * 255).toInt()
+                            paint.maskFilter = BlurMaskFilter(shadowHeight, BlurMaskFilter.Blur.NORMAL)
+                            canvas.nativeCanvas.drawRect(
+                                0f,
+                                size.height - shadowHeight,
+                                size.width,
+                                size.height,
+                                paint
+                            )
+                        }
                     }
                 }
                 .background(Container),
@@ -122,53 +131,131 @@ fun DiaryView (navController: NavController) {
                 fontSize = 20.sp,
                 modifier = Modifier
                     .padding(start = 10.dp)
-                    .weight(1f)
             )
             Row (
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
                 modifier = Modifier
-                    .padding(end = 10.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(Color.Red)
-                    .padding(horizontal = 5.dp, vertical = 3.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .weight(1f)
+
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.crown_icon),
-                    contentDescription = "crown icon",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(15.dp)
-                )
-                Text(
-                    text = "PREMIUM",
-                    fontSize = 10.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Medium
-                )
+                if(isSearchOpen){
+                    BasicTextField(
+                        value = searchText.value,
+                        onValueChange = {
+                            if(it.length <= 30){
+                                searchText.value = it
+                            }
+                        },
+                        singleLine = true,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(CircleShape)
+                            .background(Color.LightGray.copy(0.4f)),
+                        decorationBox = { innerTextField ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 13.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ){
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.search),
+                                        contentDescription = "search icon",
+                                        tint = Color.Gray,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                    if(searchText.value.isEmpty()) {
+                                        Text(
+                                            text = "Search...",
+                                            fontSize = 14.sp,
+                                            color = Color.Gray
+                                        )
+                                    } else {
+                                        innerTextField()
+                                    }
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "close icon",
+                                    tint = Color.Red,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clickable(
+                                            indication = null,
+                                            interactionSource = remember { MutableInteractionSource() },
+                                        ){
+                                            if(searchText.value.isNotEmpty()){
+                                                searchText.value = ""
+                                            } else {
+                                                isSearchOpen = false
+                                            }
+                                        }
+                                )
+
+                            }
+                        }
+                    )
+                } else {
+                    Row (
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .clip(MaterialTheme.shapes.extraSmall)
+                            .background(Color.Red)
+                            .padding(horizontal = 5.dp, vertical = 3.dp),
+                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.crown_icon),
+                            contentDescription = "crown icon",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(15.dp)
+                        )
+                        Text(
+                            text = "PREMIUM",
+                            fontSize = 10.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.search),
+                            contentDescription = "search icon",
+                            tint = Color.Black,
+                            modifier = Modifier
+                                .size(18.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.option),
+                            contentDescription = "search icon",
+                            tint = Color.Black,
+                            modifier = Modifier
+                                .size(18.dp)
+                        )
+                    }
+                }
             }
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.search),
-                    contentDescription = "search icon",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .size(18.dp)
-                )
-            }
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.option),
-                    contentDescription = "search icon",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .size(18.dp)
-                )
-            }
+
         }
 
         LazyColumn(

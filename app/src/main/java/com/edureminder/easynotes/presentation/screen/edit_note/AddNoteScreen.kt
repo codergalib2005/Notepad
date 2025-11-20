@@ -60,8 +60,8 @@ import com.edureminder.easynotes.ui.mode.ModeViewModel
 import com.edureminder.easynotes.ui.theme.ThemeViewModel
 import com.edureminder.easynotes.work.note.cancelScheduledExactNoteWorkerIfExists
 import com.edureminder.easynotes.work.note.scheduleExactNoteWorker
-import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
-import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.feature.edureminder.texteditor.annotation.ExperimentalRichTextApi
+import com.feature.edureminder.texteditor.model.rememberRichTextState
 import kotlinx.coroutines.launch
 import java.io.File
 

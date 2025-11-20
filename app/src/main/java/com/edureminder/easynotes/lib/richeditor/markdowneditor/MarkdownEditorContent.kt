@@ -90,9 +90,8 @@ import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewMod
 import com.edureminder.easynotes.presentation.screen.edit_note.components.TextEditorLinkDialog
 import com.edureminder.easynotes.ui.Primary
 import com.edureminder.easynotes.viewmodels.MainViewModel
-import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
-import com.mohamedrejeb.richeditor.model.RichTextState
-import okio.utf8Size
+import com.feature.edureminder.texteditor.annotation.ExperimentalRichTextApi
+import com.feature.edureminder.texteditor.model.RichTextState
 
 val textColors = listOf(
     Color("#ffffff".toColorInt()),

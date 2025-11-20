@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
 import com.edureminder.easynotes.ui.Primary
-import com.mohamedrejeb.richeditor.model.RichTextState
-import com.mohamedrejeb.richeditor.paragraph.type.UnorderedListStyleType
+import com.feature.edureminder.texteditor.model.RichTextState
+import com.feature.edureminder.texteditor.paragraph.type.UnorderedListStyleType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +45,20 @@ fun ListStyleSheet(
     sheetState: SheetState,
     onOpenKeyboard: () -> Unit
 ){
-    val lists = listOf("•","➔","✓","\uD83D\uDD25","🍉","⭐","⬛","\uD83D\uDC49","🍎","❤️","🍒","🍓")
+    val lists = listOf(
+        UnorderedListStyleType.Disc,
+        UnorderedListStyleType.Arrow,
+        UnorderedListStyleType.Check,
+        UnorderedListStyleType.Fire,
+        UnorderedListStyleType.Star,
+        UnorderedListStyleType.Watermelon,
+        UnorderedListStyleType.Square,
+        UnorderedListStyleType.Heart,
+        UnorderedListStyleType.Cherry,
+        UnorderedListStyleType.Apple,
+        UnorderedListStyleType.RightFinger,
+        UnorderedListStyleType.Strawberry,
+    )
 
     if(editorViewModel.isListSelectorSheetOpen){
         ModalBottomSheet(
@@ -141,43 +154,43 @@ fun ListStyleSheet(
                     }
                     lists.forEach { emoji ->
                         val currentType = richTextState.config.unorderedListStyleType
-                        val newType = UnorderedListStyleType.from(emoji)
+//                        val newType = UnorderedListStyleType.from(emoji)
 
                         Column(
                             modifier = Modifier
                                 .border(
                                     width = 2.dp,
-                                    color = if(editorViewModel.selectedEmoji == emoji) Primary else Color.LightGray,
+                                    color = Primary,//if(editorViewModel.selectedEmoji == emoji) Primary else Color.LightGray,
                                     shape = MaterialTheme.shapes.small
                                 )
                                 .weight(1f)
                                 .height(60.dp)
                                 .clickable {
 
-                                    if (currentType == newType) {
-
-                                        // Same emoji → turn OFF
-                                        richTextState.toggleUnorderedList()
-
-                                        // CLEAR selected emoji
-                                        editorViewModel.selectedEmoji = ""
-
-                                    } else {
-
-                                        // Save selected emoji
-                                        editorViewModel.selectedEmoji = emoji
-
-                                        // Reset existing list first
-                                        if (richTextState.isUnorderedList) {
-                                            richTextState.toggleUnorderedList()
-                                        }
-
-                                        // Set bullet type
-                                        richTextState.config.unorderedListStyleType = newType
-
-                                        // Turn list back ON
-                                        richTextState.toggleUnorderedList()
-                                    }
+//                                    if (currentType == newType) {
+//
+//                                        // Same emoji → turn OFF
+//                                        richTextState.toggleUnorderedList()
+//
+//                                        // CLEAR selected emoji
+//                                        editorViewModel.selectedEmoji = ""
+//
+//                                    } else {
+//
+//                                        // Save selected emoji
+//                                        editorViewModel.selectedEmoji = emoji
+//
+//                                        // Reset existing list first
+//                                        if (richTextState.isUnorderedList) {
+//                                            richTextState.toggleUnorderedList()
+//                                        }
+//
+//                                        // Set bullet type
+//                                        richTextState.config.unorderedListStyleType = newType
+//
+//                                        // Turn list back ON
+//                                        richTextState.toggleUnorderedList()
+//                                    }
                                 }
                                 .padding(vertical = 7.dp, horizontal = 10.dp)
                         ) {
@@ -186,11 +199,11 @@ fun ListStyleSheet(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(
-                                        text = emoji,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium,
-                                    )
+//                                    Text(
+//                                        text = emoji,
+//                                        fontSize = 12.sp,
+//                                        fontWeight = FontWeight.Medium,
+//                                    )
                                     Spacer(
                                         modifier = Modifier
                                             .padding(end =when(item){

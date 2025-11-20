@@ -49,6 +49,8 @@ import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.outlined.FormatAlignCenter
 import androidx.compose.material.icons.outlined.FormatBold
 import androidx.compose.material.icons.outlined.FormatItalic
+import androidx.compose.material.icons.outlined.FormatListBulleted
+import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.FormatStrikethrough
 import androidx.compose.material.icons.outlined.FormatUnderlined
 import androidx.compose.material.icons.outlined.Link
@@ -107,11 +109,11 @@ import com.edureminder.easynotes.presentation.screen.edit_note.components.TextEd
 import com.edureminder.easynotes.ui.Primary
 import com.edureminder.easynotes.utils.copyUriToInternalStorage
 import com.edureminder.easynotes.viewmodels.MainViewModel
+import com.feature.edureminder.texteditor.annotation.ExperimentalRichTextApi
+import com.feature.edureminder.texteditor.model.RichTextState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
-import com.mohamedrejeb.richeditor.model.RichTextState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -419,6 +421,20 @@ fun TextStyleSheet(
                         TextDecoration.LineThrough
                     ) == true,
                     icon = Icons.Outlined.FormatStrikethrough
+                )
+                RichTextStyleButton(
+                    onClick = {
+                        richTextState.toggleOrderedList()
+                    },
+                    isSelected = richTextState.isOrderedList,
+                    icon = Icons.Outlined.FormatListNumbered
+                )
+                RichTextStyleButton(
+                    onClick = {
+                        richTextState.toggleUnorderedList()
+                    },
+                    isSelected = richTextState.isUnorderedList,
+                    icon = Icons.AutoMirrored.Outlined.FormatListBulleted
                 )
 
 

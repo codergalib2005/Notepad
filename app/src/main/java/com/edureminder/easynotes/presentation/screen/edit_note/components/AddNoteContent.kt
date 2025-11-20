@@ -94,7 +94,7 @@ import com.edureminder.easynotes.ui.ColorBlack
 import com.edureminder.easynotes.ui.ColorWhite
 import com.edureminder.easynotes.ui.Primary
 import com.edureminder.easynotes.viewmodels.MainViewModel
-import com.mohamedrejeb.richeditor.model.RichTextState
+import com.feature.edureminder.texteditor.model.RichTextState
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar

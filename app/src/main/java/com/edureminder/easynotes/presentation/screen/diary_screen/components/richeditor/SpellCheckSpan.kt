@@ -9,10 +9,10 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
-import com.mohamedrejeb.richeditor.model.RichSpanStyle
-import com.mohamedrejeb.richeditor.model.RichTextConfig
-import com.mohamedrejeb.richeditor.utils.getBoundingBoxes
+import com.feature.edureminder.texteditor.annotation.ExperimentalRichTextApi
+import com.feature.edureminder.texteditor.model.RichSpanStyle
+import com.feature.edureminder.texteditor.model.RichTextConfig
+import com.feature.edureminder.texteditor.utils.getBoundingBoxes
 
 
 @OptIn(ExperimentalRichTextApi::class)

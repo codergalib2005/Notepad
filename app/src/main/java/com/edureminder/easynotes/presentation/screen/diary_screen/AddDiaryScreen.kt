@@ -1,7 +1,6 @@
 package com.edureminder.easynotes.presentation.screen.diary_screen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -56,7 +55,7 @@ import com.edureminder.easynotes.ui.mode.ModeViewModel
 import com.edureminder.easynotes.ui.theme.ThemeViewModel
 import com.edureminder.easynotes.work.note.cancelScheduledExactNoteWorkerIfExists
 import com.edureminder.easynotes.work.note.scheduleExactNoteWorker
-import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.feature.edureminder.texteditor.model.rememberRichTextState
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -112,7 +111,6 @@ fun AddDiaryScreen(
             editorViewModel.selectedFolder = folders.first()
         }
     }
-    Log.d("Log1", "strings -> ${richTextState.toMarkdown()}")
 
     fun onSaveDiary() {
         if (hasSaved) return
@@ -123,10 +121,11 @@ fun AddDiaryScreen(
                 .joinToString(",") { it.day.toString() }
             val images = Json.encodeToString(editorViewModel.selectedImages)
             val canvas = Json.encodeToString(editorViewModel.canvasItems)
+//            val rawBody = richTextState.toString() // contains text exactly as typed, including emojis
 
             val newDiary = Diary(
                 title = editorViewModel.title.ifEmpty { "Untitled" },
-                body = richTextState.toMarkdown(),
+                body = richTextState.toHtml(),
                 isFavourite = editorViewModel.isPinned,
                 isLocked = editorViewModel.isLocked,
                 folderId = editorViewModel.selectedFolder?.id ?: "0",
@@ -170,7 +169,7 @@ fun AddDiaryScreen(
 
                 val newDiary = Diary(
                     title = editorViewModel.title.ifEmpty { "Untitled" },
-                    body = richTextState.toMarkdown(),
+                    body = richTextState.toHtml(),
                     isFavourite = editorViewModel.isPinned,
                     isLocked = editorViewModel.isLocked,
                     folderId = editorViewModel.selectedFolder?.id ?: "0",

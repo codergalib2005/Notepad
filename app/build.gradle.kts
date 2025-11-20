@@ -92,9 +92,9 @@ dependencies {
 
 
     // ✅ FIX: Exclude the old, conflicting commonmark module
-    implementation(libs.richeditor.compose) {
-        exclude(group = "com.atlassian.commonmark", module = "commonmark")
-    }
+//    implementation(libs.richeditor.compose) {
+//        exclude(group = "com.atlassian.commonmark", module = "commonmark")
+//    }
     implementation(libs.core) {
         exclude(group = "com.atlassian.commonmark", module = "commonmark")
     }
@@ -151,6 +151,8 @@ dependencies {
 
 
     implementation("me.saket.telephoto:zoomable:0.18.0")
+
+    implementation(project(":feature:texteditor"))
 
     // RevenueCat - Now enabled and working
     implementation(libs.revenuecat)

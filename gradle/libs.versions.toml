@@ -8,7 +8,6 @@ junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
-composeBom = "2025.11.00"
 
 runtime = "1.9.4"
 ui = "1.9.4"
@@ -31,7 +30,7 @@ materialIconsExtended = "1.7.4"
 hiltAndroid = "2.57.1"
 hiltNavigationCompose = "1.2.0"
 appcompat = "1.7.0"
-material = "1.12.0"
+material = "1.13.0"
 
 #Google service api version
 google-api-services-drive =  "v3-rev20220815-2.0.0"
@@ -49,7 +48,7 @@ hilt_worker = "1.0.0"
 timber_version = "5.0.1"
 purchases = "8.15.1"
 androidx-macro-benchmark = "1.2.2"
-composeMaterial = "1.5.0-alpha08"
+composeMaterial = "1.5.5"
 coil = "2.5.0"
 appcompatVersion = "1.7.1"
 
@@ -62,6 +61,15 @@ coilCompose = "2.7.0"
 m3color = "2024.6"
 biometricKtx = "1.2.0-alpha05"
 animation = "1.9.4"
+composeBom = "2024.09.00"
+
+
+
+#feature
+#Added
+ksoup = "0.6.0"
+jetbrainsMarkdown = "0.7.3"
+
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -121,6 +129,18 @@ androidx-benchmark-macro = { group = "androidx.benchmark", name = "benchmark-mac
 androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
 ui = { module = "androidx.compose.ui:ui" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+#feature
+ksoup-html = { module = "com.mohamedrejeb.ksoup:ksoup-html", version.ref = "ksoup" }
+ksoup-entities = { module = "com.mohamedrejeb.ksoup:ksoup-entities", version.ref = "ksoup" }
+jetbrains-markdown = { module = "org.jetbrains:markdown", version.ref = "jetbrainsMarkdown" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
 
 [plugins]

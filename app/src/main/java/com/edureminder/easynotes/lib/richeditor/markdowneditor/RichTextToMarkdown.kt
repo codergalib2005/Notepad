@@ -26,9 +26,9 @@ import com.edureminder.easynotes.data.Theme
 import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
 import com.edureminder.easynotes.ui.Primary
 import com.edureminder.easynotes.viewmodels.MainViewModel
-import com.mohamedrejeb.richeditor.model.RichTextState
-import com.mohamedrejeb.richeditor.ui.material3.OutlinedRichTextEditor
-import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
+import com.feature.edureminder.texteditor.model.RichTextState
+import com.feature.edureminder.texteditor.ui.material3.OutlinedRichTextEditor
+import com.feature.edureminder.texteditor.ui.material3.RichTextEditorDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

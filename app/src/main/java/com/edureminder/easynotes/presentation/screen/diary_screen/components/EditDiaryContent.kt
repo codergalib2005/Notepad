@@ -168,8 +168,7 @@ import com.edureminder.easynotes.ui.ColorWhite
 import com.edureminder.easynotes.ui.Primary
 import com.edureminder.easynotes.utils.copyUriToInternalStorage
 import com.edureminder.easynotes.viewmodels.MainViewModel
-import com.mohamedrejeb.richeditor.model.RichTextState
-import com.mohamedrejeb.richeditor.paragraph.type.UnorderedListStyleType
+import com.feature.edureminder.texteditor.model.RichTextState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -738,19 +737,19 @@ fun EditDiaryContent(
                                             .background(Color(0x48393B3D))
                                     )
 
-                                    RichTextStyleButton(
-                                        onClick = {
-                                            scope.launch {
-                                                keyboardController?.hide()
-                                                focusManager.clearFocus()
-
-                                                delay(100)
-                                                editorViewModel.isListSelectorSheetOpen = true
-                                            }
-                                        },
-                                        isSelected = false,
-                                        icon = Icons.AutoMirrored.Outlined.FormatListBulleted,
-                                    )
+//                                    RichTextStyleButton(
+//                                        onClick = {
+//                                            scope.launch {
+//                                                keyboardController?.hide()
+//                                                focusManager.clearFocus()
+//
+//                                                delay(100)
+//                                                editorViewModel.isListSelectorSheetOpen = true
+//                                            }
+//                                        },
+//                                        isSelected = false,
+//                                        icon = Icons.AutoMirrored.Outlined.FormatListBulleted,
+//                                    )
                                     Box(
                                         modifier = Modifier
                                             .size(40.dp)
@@ -807,16 +806,16 @@ fun EditDiaryContent(
         )
     }
 
-    ListStyleSheet(
-        richTextState,
-        editorViewModel,
-        sheetState,
-        onOpenKeyboard = {
-            scope.launch {
-                editorViewModel.isListSelectorSheetOpen = false // close sheet
-            }
-        }
-    )
+//    ListStyleSheet(
+//        richTextState,
+//        editorViewModel,
+//        sheetState,
+//        onOpenKeyboard = {
+//            scope.launch {
+//                editorViewModel.isListSelectorSheetOpen = false // close sheet
+//            }
+//        }
+//    )
     StickersStyleSheet(
         editorViewModel,
         stickerSheetState,

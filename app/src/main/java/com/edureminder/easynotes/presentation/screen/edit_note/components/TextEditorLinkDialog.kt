@@ -41,7 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.edureminder.easynotes.ui.Primary
-import com.mohamedrejeb.richeditor.model.RichTextState
+import com.feature.edureminder.texteditor.model.RichTextState
 
 @Composable
 fun TextEditorLinkDialog(

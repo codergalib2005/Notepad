@@ -78,7 +78,7 @@ import com.edureminder.easynotes.ui.theme.ThemeViewModel
 import com.edureminder.easynotes.utils.safeDecodeList
 import com.edureminder.easynotes.work.note.cancelScheduledExactNoteWorkerIfExists
 import com.edureminder.easynotes.work.note.scheduleExactNoteWorker
-import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.feature.edureminder.texteditor.model.rememberRichTextState
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -130,12 +130,12 @@ fun EditDiaryScreen(
             selectedImages = safeDecodeList(currentDiary.images)
             canvasItems = safeDecodeList(currentDiary.stickers)
         }
-        richTextState.setMarkdown(currentDiary.body)
+        richTextState.setHtml(currentDiary.body)
     }
 
     // Update body HTML whenever richTextState changes
     LaunchedEffect(richTextState.annotatedString) {
-        editorViewModel.body = richTextState.toMarkdown()
+        editorViewModel.body = richTextState.toHtml()
     }
 
     fun onSaveDiary() {

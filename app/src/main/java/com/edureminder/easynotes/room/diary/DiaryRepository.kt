@@ -1,12 +1,14 @@
 package com.edureminder.easynotes.room.diary
 
 
+import android.annotation.SuppressLint
 import com.edureminder.easynotes.preferences.notes.SortOrder
 import com.edureminder.easynotes.room.note.Note
 import com.edureminder.easynotes.room.note.Status
 import com.edureminder.easynotes.room.note.SyncStatus
 import com.edureminder.easynotes.room.note.Type
 import kotlinx.coroutines.flow.Flow
+import java.util.Calendar
 
 class DiaryRepository(private val diaryDao: DiaryDao) {
     val currentTime = System.currentTimeMillis()
@@ -34,8 +36,45 @@ class DiaryRepository(private val diaryDao: DiaryDao) {
 //            selectedType = selectedType
 //        )
 //    }
-    suspend fun getAllDiaries(): List<Diary> {
-        return diaryDao.fetchAllDiaries()
+    @SuppressLint("DefaultLocale")
+    fun mapDiaryRawToPreview(raw: DiaryRaw, use24HourFormat: Boolean): DiaryPreview {
+        val calendar = Calendar.getInstance().apply { timeInMillis = raw.createdAt }
+
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+        val timeString = if (use24HourFormat) {
+            String.format("%02d:%02d", hour, minute)
+        } else {
+            val amPm = if (hour >= 12) "PM" else "AM"
+            val hour12 = if (hour % 12 == 0) 12 else hour % 12
+            String.format("%d:%02d %s", hour12, minute, amPm)
+        }
+
+        // Get short month name
+        val monthShort = calendar.getDisplayName(
+            Calendar.MONTH,
+            Calendar.SHORT,
+            java.util.Locale.getDefault()
+        ) ?: "Jan"
+
+        return DiaryPreview(
+            id = raw.id,
+            title = raw.title,
+            preview = raw.preview,
+            createdAtDay = calendar.get(Calendar.DAY_OF_MONTH),
+            createdAtMonth = monthShort, // <-- use short name
+            createdAtYear = calendar.get(Calendar.YEAR),
+            createdAtTime = timeString,
+            images = raw.images,
+            mood = raw.mood
+        )
+    }
+
+
+    suspend fun getAllDiaries(use24HourFormat: Boolean = false): List<DiaryPreview> {
+        val rawList = diaryDao.fetchAllDiaries()
+        return rawList.map { mapDiaryRawToPreview(it, use24HourFormat) }
     }
 
     // Upsert (Insert or Update) a note

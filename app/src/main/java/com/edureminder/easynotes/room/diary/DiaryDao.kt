@@ -7,7 +7,30 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.edureminder.easynotes.room.note.Status
+import com.edureminder.easynotes.room.note.SyncStatus
 import kotlinx.coroutines.flow.Flow
+
+data class DiaryPreview(
+    val id: String,
+    val title: String,
+    val preview: String,
+    val createdAtDay: Int,
+    val createdAtMonth: String,
+    val createdAtYear: Int,
+    val createdAtTime: String,
+    val mood: Int,
+    val images: String
+)
+
+data class DiaryRaw(
+    val id: String,
+    val title: String,
+    val preview: String,
+    val createdAt: Long,
+    val mood: Int,
+    val images: String
+)
+
 
 @Dao
 interface DiaryDao {
@@ -25,8 +48,13 @@ interface DiaryDao {
     @Upsert
     suspend fun upsertDiaries(diaries: List<Diary>)
 
-    @Query("SELECT * FROM diary_table")
-    suspend fun fetchAllDiaries(): List<Diary>
+    @Query("""
+        SELECT 
+            *,
+            SUBSTR(body, 1, 300) AS preview
+        FROM diary_table
+    """)
+    suspend fun fetchAllDiaries(): List<DiaryRaw>
 
     @Query("SELECT * FROM diary_table WHERE status = 'ACTIVE' ORDER BY updatedAt DESC")
     fun getAllActiveDiaries(): Flow<List<Diary>>

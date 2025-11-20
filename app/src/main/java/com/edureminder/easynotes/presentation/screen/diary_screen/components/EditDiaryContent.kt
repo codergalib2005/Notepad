@@ -305,7 +305,7 @@ fun EditDiaryContent(
     }
     // Focus the BasicTextField initially if screenFrom is 'add_note'
     LaunchedEffect(screenFrom) {
-        if (screenFrom == "add_note") {
+        if (screenFrom == "add_diary") {
             titleFocusRequester.requestFocus()
             keyboardController?.show()
         }

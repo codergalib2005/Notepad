@@ -128,7 +128,7 @@ class NoteEditorViewModel : ViewModel() {
     var isOpenFolderList by mutableStateOf(false)
     var isNewFolderPopupOpen by mutableStateOf(false)
     var isMoreOptionsOpen by mutableStateOf(false)
-    var showThemeSheet by mutableStateOf(true)
+    var showThemeSheet by mutableStateOf(false)
     var showReminderDialog by  mutableStateOf(false)
     var selectedThemeTabIndex by mutableIntStateOf(0)
     fun getCurrentDate(): String {

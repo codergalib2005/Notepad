@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.edureminder.easynotes.R
 import com.edureminder.easynotes.room.diary.Diary
+import com.edureminder.easynotes.room.diary.DiaryPreview
 import com.edureminder.easynotes.room.diary.DiaryViewModel
 import com.edureminder.easynotes.ui.Primary
 
@@ -47,7 +48,7 @@ import com.edureminder.easynotes.ui.Primary
 fun DiaryView (navController: NavController) {
     val diaryViewModel: DiaryViewModel = hiltViewModel()
     // State for diaries
-    var diaries by remember { mutableStateOf<List<Diary>>(emptyList()) }
+    var diaries by remember { mutableStateOf<List<DiaryPreview>>(emptyList()) }
     // State for loading
     var isLoading by remember { mutableStateOf(true) }
 

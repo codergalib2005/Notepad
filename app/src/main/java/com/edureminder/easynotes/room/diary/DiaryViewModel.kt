@@ -35,7 +35,7 @@ class DiaryViewModel @Inject constructor(
 //        )
 //    }
 
-    fun getAllDiaries(onResult: (List<Diary>) -> Unit) {
+    fun getAllDiaries(onResult: (List<DiaryPreview>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val diaries = repository.getAllDiaries()
             onResult(diaries)

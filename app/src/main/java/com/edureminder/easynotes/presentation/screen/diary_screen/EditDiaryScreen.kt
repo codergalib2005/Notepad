@@ -3,6 +3,7 @@ package com.edureminder.easynotes.presentation.screen.diary_screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -74,6 +75,7 @@ import com.edureminder.easynotes.ui.ColorBlack
 import com.edureminder.easynotes.ui.NotepadTheme
 import com.edureminder.easynotes.ui.mode.ModeViewModel
 import com.edureminder.easynotes.ui.theme.ThemeViewModel
+import com.edureminder.easynotes.utils.safeDecodeList
 import com.edureminder.easynotes.work.note.cancelScheduledExactNoteWorkerIfExists
 import com.edureminder.easynotes.work.note.scheduleExactNoteWorker
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
@@ -97,76 +99,71 @@ fun EditDiaryScreen(
     val folderViewModel: FolderViewModel = hiltViewModel()
     val editorViewModel: NoteEditorViewModel = viewModel()
 
-    // Observe note
-    val currentDiary = diaryViewModel.getOneDiary(diaryID).collectAsState(initial = Diary()).value
-
+    val currentDiary by diaryViewModel.getOneDiary(diaryID).collectAsState(initial = Diary())
     val richTextState = rememberRichTextState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     val folders by folderViewModel.allFolders.collectAsState(initial = emptyList())
     val isNoteDeleted = remember { mutableStateOf(false) }
+    val editableDiary = remember { mutableStateOf(currentDiary) }
+    val diaryToSave = remember { mutableStateOf(currentDiary) }
 
-    LaunchedEffect(key1 = Unit) {
-        editorViewModel.isEditable = false
-    }
+    // Initialize editor state when diary is loaded
     LaunchedEffect(currentDiary) {
-        editorViewModel.body = currentDiary.body
-        editorViewModel.title = currentDiary.title
-        richTextState.setHtml(currentDiary.body)
-        editorViewModel.isLocked = currentDiary.isLocked
-        editorViewModel.isPinned = currentDiary.isFavourite
-        editorViewModel.selectedFolderId = currentDiary.folderId
-        editorViewModel.changeBackground(currentDiary.backgroundId)
-        editorViewModel.selectReminderType = reminderTypes.find { it.id == currentDiary.reminderType } ?: reminderTypes.first()
-        editorViewModel.timeText = currentDiary.reminderTime
-        editorViewModel.selectedFolder = folders.find { it.id == currentDiary.folderId }
-        editorViewModel.dateText = currentDiary.reminderDate
-
-        val dbDaysString = currentDiary.repeatDays // "1,2,3,5,6,7"
-        val dbDays = dbDaysString.split(",")
-            .mapNotNull { it.trim().toIntOrNull() }
-        val restoredImages = Json.decodeFromString<List<String>>(currentDiary.images)
-        val restoredCanvas: List<CanvasObject> = Json.decodeFromString(currentDiary.stickers)
-
-
-//        editorViewModel.canvasItems = restoredCanvas
-//        editorViewModel.selectedImages = restoredImages
-        editorViewModel.repeatableDays = editorViewModel.repeatableDays.map { day ->
-            day.copy(isSelected = dbDays.contains(day.day))
+        diaryToSave.value = currentDiary
+        editableDiary.value = currentDiary
+        editorViewModel.apply {
+            title = currentDiary.title
+            body = currentDiary.body
+            isPinned = currentDiary.isFavourite
+            isLocked = currentDiary.isLocked
+            selectedFolderId = currentDiary.folderId
+            selectedFolder = folders.find { it.id == currentDiary.folderId }
+            changeBackground(currentDiary.backgroundId)
+            selectReminderType = reminderTypes.find { it.id == currentDiary.reminderType } ?: reminderTypes.first()
+            timeText = currentDiary.reminderTime
+            dateText = currentDiary.reminderDate
+            repeatableDays = repeatableDays.map { day ->
+                day.copy(isSelected = currentDiary.repeatDays.split(",").mapNotNull { it.toIntOrNull() }.contains(day.day))
+            }
+            selectedImages = safeDecodeList(currentDiary.images)
+            canvasItems = safeDecodeList(currentDiary.stickers)
         }
+        richTextState.setHtml(currentDiary.body)
     }
-    LaunchedEffect(key1 = richTextState.annotatedString) {
+
+    // Update body HTML whenever richTextState changes
+    LaunchedEffect(richTextState.annotatedString) {
         editorViewModel.body = richTextState.toHtml()
     }
 
-    fun onSaveDiary(){
-        coroutineScope.launch {
-            saveIfChanged(
-                context,
-                currentDiary = currentDiary,
-                title = editorViewModel.title,
-                body = richTextState.toHtml(),
-                isPinned = editorViewModel.isPinned,
-                isLocked = editorViewModel.isLocked,
-                folderId = editorViewModel.selectedFolder?.id ?: "0",
-                canvasItems = editorViewModel.canvasItems,
-                selectedImages = editorViewModel.selectedImages,
-                backgroundId = editorViewModel.selectedBackground.id,
-                selectReminderType = editorViewModel.selectReminderType,
-                timeText = editorViewModel.timeText,
-                dateText = editorViewModel.dateText,
-                repeatableDays = editorViewModel.repeatableDays
-            ) { diary ->
-                diaryViewModel.upsertDiary(diary)
-            }
+    fun onSaveDiary() {
+        val selectedDaysString = editorViewModel.repeatableDays
+            .filter { it.isSelected }
+            .joinToString(",") { it.day.toString() }
 
+        val images = Json.encodeToString(editorViewModel.selectedImages)
+        val canvas = Json.encodeToString(editorViewModel.canvasItems)
 
-            // Navigate back after saving
-            navController.navigateUp()
-        }
+        val updatedDiary = editableDiary.value.copy(
+            title = editorViewModel.title.ifEmpty { "Untitled" },
+            body = editorViewModel.body,
+            isFavourite = editorViewModel.isPinned,
+            isLocked = editorViewModel.isLocked,
+            folderId = editorViewModel.selectedFolder?.id ?: "0",
+            images = images,
+            stickers = canvas,
+            updatedAt = System.currentTimeMillis(),
+            backgroundId = editorViewModel.selectedBackground.id,
+            reminderType = editorViewModel.selectReminderType.id,
+            reminderTime = editorViewModel.timeText,
+            reminderDate = editorViewModel.dateText,
+            repeatDays = selectedDaysString
+        )
+
+        diaryViewModel.upsertDiary(updatedDiary)
     }
-
 
     val modeViewModel = ModeViewModel(context)
     val themeViewModel = ThemeViewModel(context)
@@ -175,13 +172,35 @@ fun EditDiaryScreen(
     val settingStore = SettingsStore(context)
     val isSystemFont by settingStore.getUseSystemFontKey.collectAsState(initial = false)
 
-
     val headerColor = Color(editorViewModel.theme.headerColor.toColorInt())
     val backgroundColor = Color(editorViewModel.theme.backgroundColor.toColorInt())
-
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    BackHandler {
+        // Save diary before navigating back
+        coroutineScope.launch {
+            saveIfChanged(
+                context = context,
+                currentDiary = diaryToSave.value,
+                title = editorViewModel.title,
+                body = editorViewModel.body,
+                isPinned = editorViewModel.isPinned,
+                isLocked = editorViewModel.isLocked,
+                folderId = editorViewModel.selectedFolder?.id ?: "0",
+                backgroundId = editorViewModel.selectedBackground.id,
+                canvasItems = editorViewModel.canvasItems,
+                selectedImages = editorViewModel.selectedImages,
+                selectReminderType = editorViewModel.selectReminderType,
+                timeText = editorViewModel.timeText,
+                dateText = editorViewModel.dateText,
+                repeatableDays = editorViewModel.repeatableDays
+            ) { updatedDiary ->
+                diaryViewModel.upsertDiary(updatedDiary)
+            }
+
+            navController.navigateUp() // Navigate back after save
+        }
+    }
 
     NotepadTheme(
         isTheme = isTheme,
@@ -190,36 +209,21 @@ fun EditDiaryScreen(
         isDarkMode = isDarkMode,
     ) {
         Scaffold(
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
-            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             containerColor = headerColor
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-            ) {
+            Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
                 if (editorViewModel.selectedBackground.id != 1) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .navigationBarsPadding()
-                    ) {
-                        Image(
-                            painter = painterResource(id = editorViewModel.selectedBackground.res),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            contentScale = ContentScale.FillWidth,
-                            alignment = Alignment.BottomCenter
-                        )
-                    }
+                    Image(
+                        painter = painterResource(id = editorViewModel.selectedBackground.res),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+                        contentScale = ContentScale.FillWidth,
+                        alignment = Alignment.BottomCenter
+                    )
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
+
+                Column(modifier = Modifier.fillMaxSize()) {
                     EditDiaryContent(
                         sharedTransitionScope,
                         animatedContentScope,
@@ -233,106 +237,51 @@ fun EditDiaryScreen(
                         onSaveDiary = ::onSaveDiary,
                         backgroundColor,
                         onSnackbarUpdate = { message ->
-                            scope.launch {
-                                snackbarHostState.showSnackbar(message)
-                            }
+                            coroutineScope.launch { snackbarHostState.showSnackbar(message) }
                         },
                     )
                 }
 
                 BackgroundBottomSheet(
                     sheetState = sheetState,
-                    onDismiss = {
-                        coroutineScope.launch {
-                            sheetState.hide()
-                        }
-                    },
+                    onDismiss = { coroutineScope.launch { sheetState.hide() } },
                     editorViewModel
                 )
+            }
+        }
+    }
 
-//                if (editorViewModel.isDeletePopupOpen) {
-//                    NoteDeletePopup(
-//                        editorViewModel,
-//                        notesViewModel,
-//                        listOf(noteID),
-//                        onEmptySelectedNotes = {
-//                            isNoteDeleted.value = true
-//                            editorViewModel.isDeletePopupOpen = false
-//                            navController.navigateUp()
-//                        },
-//                        onSnackbarUpdate = {
-//                            scope.launch {
-//                                snackbarHostState.showSnackbar(it)
-//                            }
-//                        }
-//                    )
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            if (isNoteDeleted.value) return@onDispose
+//
+//            // Use latest snapshot
+//            val latestDiary = diaryToSave.value
+//
+//            coroutineScope.launch {
+//                saveIfChanged(
+//                    context = context,
+//                    currentDiary = latestDiary,
+//                    title = editorViewModel.title,
+//                    body = editorViewModel.body,
+//                    isPinned = editorViewModel.isPinned,
+//                    isLocked = editorViewModel.isLocked,
+//                    folderId = editorViewModel.selectedFolder?.id ?: "0",
+//                    backgroundId = editorViewModel.selectedBackground.id,
+//                    canvasItems = editorViewModel.canvasItems,
+//                    selectedImages = editorViewModel.selectedImages,
+//                    selectReminderType = editorViewModel.selectReminderType,
+//                    timeText = editorViewModel.timeText,
+//                    dateText = editorViewModel.dateText,
+//                    repeatableDays = editorViewModel.repeatableDays
+//                ) { updatedDiary ->
+//                    diaryViewModel.upsertDiary(updatedDiary)
 //                }
-            }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            if (isNoteDeleted.value) return@onDispose
-
-            val selectedDaysString = editorViewModel.repeatableDays
-                .filter { it.isSelected }
-                .joinToString(",") { it.day.toString() }
-            val images = Json.encodeToString(editorViewModel.selectedImages)
-            val canvas = Json.encodeToString(editorViewModel.canvasItems)
-
-            val isReminderChanged = editorViewModel.selectReminderType.id != currentDiary.reminderType ||
-                    editorViewModel.timeText != currentDiary.reminderTime ||
-                    currentDiary.repeatDays != selectedDaysString
-
-            val hasChanged = editorViewModel.title != currentDiary.title ||
-                    editorViewModel.body != currentDiary.body ||
-                    editorViewModel.isPinned != currentDiary.isFavourite ||
-                    editorViewModel.isLocked != currentDiary.isLocked ||
-                    editorViewModel.selectedFolder?.id != currentDiary.folderId ||
-                    editorViewModel.selectedBackground.id != currentDiary.backgroundId ||
-                    canvas != currentDiary.stickers ||
-                    images != currentDiary.images
-
-
-
-            if (hasChanged || isReminderChanged) {
-                val updatedNote = currentDiary.copy(
-                    id = currentDiary.id,
-                    title = editorViewModel.title.ifEmpty { "Untitled" },
-                    body = editorViewModel.body,
-                    isFavourite = editorViewModel.isPinned,
-                    isLocked = editorViewModel.isLocked,
-                    folderId = editorViewModel.selectedFolder?.id ?: "0",
-                    images = images,
-                    stickers = canvas,
-
-                    updatedAt = System.currentTimeMillis(),
-                    backgroundId = editorViewModel.selectedBackground.id,
-                    reminderType = editorViewModel.selectReminderType.id,
-                    reminderTime = editorViewModel.timeText,
-                    reminderDate = editorViewModel.dateText,
-                    repeatDays = selectedDaysString,
-                )
-
-                diaryViewModel.upsertDiary(updatedNote)
-
-                if (isReminderChanged && updatedNote.reminderType == 2) {
-                    scheduleExactNoteWorker(
-                        context = context,
-                        timeString = editorViewModel.timeText,
-                        selectedDaysString = selectedDaysString,
-                        uniqueWorkId = updatedNote.id,
-                        date = editorViewModel.dateText
-                    )
-                } else if (isReminderChanged) {
-                    cancelScheduledExactNoteWorkerIfExists(context, updatedNote.id)
-                }
-            }
-
-        }
-    }
+//            }
+//        }
+//    }
 }
+
 
 private suspend fun saveIfChanged(
     context: Context,
@@ -351,9 +300,7 @@ private suspend fun saveIfChanged(
     repeatableDays: List<SelectedDay>,
     upsert: suspend (Diary) -> Unit,
 ) {
-    val selectedDaysString = repeatableDays
-        .filter { it.isSelected }
-        .joinToString(",") { it.day.toString() }
+    val selectedDaysString = repeatableDays.filter { it.isSelected }.joinToString(",") { it.day.toString() }
     val images = Json.encodeToString(selectedImages)
     val canvas = Json.encodeToString(canvasItems)
 
@@ -366,15 +313,12 @@ private suspend fun saveIfChanged(
             isPinned != currentDiary.isFavourite ||
             isLocked != currentDiary.isLocked ||
             folderId != currentDiary.folderId ||
-            currentDiary.backgroundId != backgroundId ||
+            backgroundId != currentDiary.backgroundId ||
             canvas != currentDiary.stickers ||
             images != currentDiary.images
 
-
-
     if (hasChanged || isReminderChanged) {
-        val updatedNote = currentDiary.copy(
-            id = currentDiary.id,
+        val updatedDiary = currentDiary.copy(
             title = title.ifEmpty { "Untitled" },
             body = body,
             isFavourite = isPinned,
@@ -382,27 +326,22 @@ private suspend fun saveIfChanged(
             folderId = folderId,
             images = images,
             stickers = canvas,
-
             updatedAt = System.currentTimeMillis(),
             backgroundId = backgroundId,
             reminderType = selectReminderType.id,
             reminderTime = timeText,
             reminderDate = dateText,
-            repeatDays = selectedDaysString,
+            repeatDays = selectedDaysString
         )
 
-        upsert(updatedNote)
+        upsert(updatedDiary)
 
-        if (isReminderChanged && updatedNote.reminderType == 2) {
-            scheduleExactNoteWorker(
-                context = context,
-                timeString = timeText,
-                selectedDaysString = selectedDaysString,
-                uniqueWorkId = updatedNote.id,
-                date = dateText
-            )
-        } else if (isReminderChanged) {
-            cancelScheduledExactNoteWorkerIfExists(context, updatedNote.id)
+        if (isReminderChanged) {
+            if (updatedDiary.reminderType == 2) {
+                scheduleExactNoteWorker(context, timeText, selectedDaysString, updatedDiary.id, dateText)
+            } else {
+                cancelScheduledExactNoteWorkerIfExists(context, updatedDiary.id)
+            }
         }
     }
 }

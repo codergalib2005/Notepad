@@ -1,5 +1,6 @@
 package com.edureminder.easynotes.presentation.screen.main_screen.diary_views
 
+import android.text.Html
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,12 +41,13 @@ import com.edureminder.easynotes.R
 import com.edureminder.easynotes.presentation.navigation.Screen
 import com.edureminder.easynotes.presentation.screen.diary_screen.components.SmallThumbnailImage
 import com.edureminder.easynotes.room.diary.Diary
+import com.edureminder.easynotes.room.diary.DiaryPreview
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun DiaryItem(
-    diary: Diary,
+    diary: DiaryPreview,
     navController: NavController
 ) {
     val restoredImages = Json.decodeFromString<List<String>>(diary.images)
@@ -67,7 +69,7 @@ fun DiaryItem(
         Column (
             modifier = Modifier
                 .fillMaxHeight()
-                .width(60.dp)
+                .width(50.dp)
                 .drawBehind {
                     val strokeWidthPx = 5f
 
@@ -86,18 +88,18 @@ fun DiaryItem(
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Text(
-                text = "17",
+                text = diary.createdAtDay.toString(),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black.copy(0.9f)
             )
             Text(
-                text = "Oct",
+                text = diary.createdAtMonth,
                 fontSize = 18.sp,
                 color = Color.Black.copy(0.7f)
             )
             Text(
-                text = "2025",
+                text = diary.createdAtYear.toString(),
                 fontSize = 18.sp,
                 color = Color.Black.copy(0.7f)
             )
@@ -111,7 +113,7 @@ fun DiaryItem(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                text = "8:34 PM",
+                text = diary.createdAtTime,
                 fontSize = 14.sp,
                 color = Color.Black.copy(0.7f),
                 modifier = Modifier
@@ -124,20 +126,29 @@ fun DiaryItem(
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium
             )
+
             Text(
-                text = diary.body,
+                text = if (diary.preview.isEmpty()) {
+                        "Empty Body"
+                } else {
+                    // Clean the HTML tags and get the plain text
+                    val plainText =
+                        Html.fromHtml(diary.preview, Html.FROM_HTML_MODE_LEGACY).toString()
+                            .trim()
+                    // Limit to 100 characters
+                    plainText.take(100).takeIf { it.isNotEmpty() } ?: "Empty Body"
+                },
+                fontSize = 17.sp,
                 maxLines = 4,
                 overflow = TextOverflow.Ellipsis,
-                fontSize = 17.sp,
                 color = Color.Black.copy(0.7f)
             )
-            LazyRow(
+            Row(
                 modifier = Modifier
                     .padding(top = 10.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                items(restoredImages) { image ->
+                restoredImages.take(5).forEach { image ->
                     SmallThumbnailImage(
                         image
                     )

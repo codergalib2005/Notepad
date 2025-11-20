@@ -2,17 +2,21 @@ package com.edureminder.easynotes.presentation.screen.main_screen.diary_views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.History
@@ -20,11 +24,14 @@ import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,6 +62,16 @@ fun FilterBottomSheet(
     sheetState: SheetState,
     isFilterSheetOpen: Boolean,
     diaryFilter: DiaryFilterPreference,
+    sortOption: String,
+    onSortOptionChange: (String) -> Unit,
+    createdAfter: Long?,
+    onCreatedAfterChange: (Long?) -> Unit,
+    createdBefore: Long?,
+    onCreatedBeforeChange: (Long?) -> Unit,
+    updatedAfter: Long?,
+    onUpdatedAfterChange: (Long?) -> Unit,
+    updatedBefore: Long?,
+    onUpdatedBeforeChange: (Long?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     if (isFilterSheetOpen) {
@@ -63,7 +80,8 @@ fun FilterBottomSheet(
             sheetState = sheetState,
             dragHandle = null,
             containerColor = ColorWhite,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(0.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -72,19 +90,6 @@ fun FilterBottomSheet(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // ---------------- Sort Options ----------------
-                Box(
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    HorizontalDivider(color = Color.LightGray)
-                    Text(
-                        text = "Sort By",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                            .background(Color.White)
-                            .padding(horizontal = 10.dp)
-                    )
-                }
 
                 // ---------------- Sort Options ----------------
                 Box(contentAlignment = Alignment.CenterStart) {
@@ -95,6 +100,23 @@ fun FilterBottomSheet(
                         modifier = Modifier.padding(vertical = 4.dp)
                             .background(Color.White).padding(horizontal = 10.dp)
                     )
+                    IconButton(
+                        onClick = {
+                            onDismiss()
+                        },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = ColorWhite
+                        ),
+                        modifier = Modifier
+                            .offset(x = 10.dp)
+                            .align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
                 }
                 // ---------------- Sort Options ----------------
                 val sortOrders = listOf(
@@ -114,14 +136,14 @@ fun FilterBottomSheet(
                             SortOrder.UPDATED_AT_NEWEST_FIRST, SortOrder.UPDATED_AT_OLDEST_FIRST -> Icons.Default.History
                         },
                         label = sort.name,
-                        selected = diaryFilter.sortOption == sort.value,
-                        enabled = diaryFilter.sortOption != sort.value
+                        selected = sortOption == sort.value,
+                        enabled = sortOption != sort.value
                     ) {
+                        // ✅ update both Compose state & SharedPreferences
+                        onSortOptionChange(sort.value)
                         diaryFilter.sortOption = sort.value
                     }
                 }
-
-
                 // ---------------- Mood Options ----------------
 //                Box(contentAlignment = Alignment.CenterStart) {
 //                    HorizontalDivider(color = Color.LightGray)
@@ -172,7 +194,14 @@ fun SettingItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(CircleShape)
-            .clickable(enabled = enabled, onClick = onClick)
+            .clickable(
+                indication = null,
+                interactionSource = remember{
+                    MutableInteractionSource()
+                },
+                enabled = enabled,
+                onClick = onClick
+            )
             .padding(vertical = 4.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)

@@ -349,6 +349,16 @@ fun DiaryView (navController: NavController) {
         sheetState = sheetState,
         diaryFilter = diaryFilter,
         isFilterSheetOpen = isFilterSheetOpen,
+        sortOption = sortOption,
+        onSortOptionChange = { sortOption = it },
+        createdAfter = createdAfter,
+        onCreatedAfterChange = { createdAfter = it },
+        createdBefore = createdBefore,
+        onCreatedBeforeChange = { createdBefore = it },
+        updatedAfter = updatedAfter,
+        onUpdatedAfterChange = { updatedAfter = it },
+        updatedBefore = updatedBefore,
+        onUpdatedBeforeChange = { updatedBefore = it },
         onDismiss = { isFilterSheetOpen = false }
     )
 

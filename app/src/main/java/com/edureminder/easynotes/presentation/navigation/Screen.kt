@@ -29,15 +29,6 @@ sealed class Screen {
 
 
     @Serializable
-    data object AddChecklistScreen: Screen()
-    @Serializable
-    data class EditChecklistScreen(
-        val checklistId: String
-    ): Screen()
-
-
-
-    @Serializable
     data object ArchivedNoteScreen: Screen()
 
     @Serializable
@@ -63,6 +54,12 @@ sealed class Screen {
         val encrypted: Boolean
     ): Screen()
 
+    @Serializable
+    data object AddChecklistScreen: Screen()
+    @Serializable
+    data class EditChecklistScreen(
+        val checklistId: String
+    ): Screen()
 
     @Serializable
     data class ImageViewScreen(

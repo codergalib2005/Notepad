@@ -10,8 +10,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.edureminder.easynotes.drive.AuthViewModel
+import com.edureminder.easynotes.presentation.screen.checklist_screen.AddChecklistScreen
+import com.edureminder.easynotes.presentation.screen.checklist_screen.EditChecklistScreen
 import com.edureminder.easynotes.presentation.screen.diary_screen.AddDiaryScreen
 import com.edureminder.easynotes.presentation.screen.diary_screen.EditDiaryScreen
 import com.edureminder.easynotes.presentation.screen.edit_note.AddNoteScreen
@@ -101,6 +104,28 @@ fun SetupNavGraph(
                     this@composable,
                     navController = navController,
                     diaryID = arg.diaryId,
+                    onPDFGenerate = onPDFGenerate
+                )
+            }
+
+            composable <Screen.AddChecklistScreen>{
+                AddChecklistScreen(
+                    navController,
+                    onPDFGenerate = onPDFGenerate
+                )
+            }
+            composable <Screen.EditChecklistScreen>(
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "checklists://checklist/{checklistId}"
+                        action = android.content.Intent.ACTION_VIEW
+                    }
+                )
+            ){
+                val arg = it.toRoute<Screen.EditChecklistScreen>()
+                EditChecklistScreen(
+                    navController,
+                    checklistId = arg.checklistId,
                     onPDFGenerate = onPDFGenerate
                 )
             }

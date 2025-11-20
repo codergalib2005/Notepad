@@ -141,15 +141,15 @@ fun AddNotesContent(
                 }
             )
         )
-        add(
-            MoreOption(
-                icon = if (editorViewModel.isLocked) Icons.Filled.Lock else Icons.Outlined.LockOpen,
-                name = "Lock",
-                onClick = {
-                    editorViewModel.isLocked = !editorViewModel.isLocked
-                }
-            )
-        )
+//        add(
+//            MoreOption(
+//                icon = if (editorViewModel.isLocked) Icons.Filled.Lock else Icons.Outlined.LockOpen,
+//                name = "Lock",
+//                onClick = {
+//                    editorViewModel.isLocked = !editorViewModel.isLocked
+//                }
+//            )
+//        )
 //        add(
 //            MoreOption(
 //                icon = Icons.Default.Share,

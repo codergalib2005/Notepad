@@ -63,7 +63,10 @@ import com.edureminder.easynotes.ui.Primary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiaryView (navController: NavController) {
+fun DiaryView (
+    navController: NavController,
+    onSnackbarUpdate : (String) -> Unit
+) {
 
     val context = LocalContext.current
     val diaryViewModel: DiaryViewModel = hiltViewModel()

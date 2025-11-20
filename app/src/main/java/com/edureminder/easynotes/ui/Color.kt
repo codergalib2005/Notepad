@@ -39,7 +39,7 @@ val linkColor = Color(0xFF90D5FF)
 
 
 //added
-var ColorPrimary = Color("#FB5477".toColorInt())
+//var ColorPrimary = Color("#FB5477".toColorInt())
 
 //val Purple40 = Color(0xFF6650a4)
 //val PurpleGrey40 = Color(0xFF625b71)

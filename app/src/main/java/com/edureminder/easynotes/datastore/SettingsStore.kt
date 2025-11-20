@@ -32,7 +32,7 @@ class SettingsStore(
         preference[ANIMATION_SHOW_KEY] ?: true
     }
 
-    val getClockKey : Flow<Boolean?> = context.dataStore.data.map {preference->
+    val getClockKey : Flow<Boolean> = context.dataStore.data.map {preference->
         preference[SHOW_24_HOUR_CLOCK_KEY] ?: true
     }
     val getSoundKey : Flow<Boolean?> = context.dataStore.data.map{preference->

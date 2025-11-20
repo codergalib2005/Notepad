@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -17,12 +21,15 @@ import com.edureminder.easynotes.R
 import com.edureminder.easynotes.drive.AuthViewModel
 import com.edureminder.easynotes.presentation.navigation.Screen
 import com.edureminder.easynotes.presentation.screen.main_screen.diary_views.DiaryView
+import com.edureminder.easynotes.presentation.screen.main_screen.note_views.NoteView
 import com.edureminder.easynotes.ui.Container
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+    val scope = rememberCoroutineScope()
     var selectedTab by rememberSaveable {
-        mutableIntStateOf(3)
+        mutableIntStateOf(0)
     }
     val tasksTypes = listOf(
         TaskTypeItem(
@@ -46,10 +53,14 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
             name = "Notes",
             icon = R.drawable.note,
             onClick = {
-                navController.navigate(Screen.EditNoteScreen)
+                navController.navigate(Screen.AddNoteScreen)
             }
         )
     )
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
 
     Scaffold(
         floatingActionButton = {
@@ -58,7 +69,10 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
             )
         },
         floatingActionButtonPosition = FabPosition.Center,
-        containerColor = Container
+        containerColor = Container,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -66,7 +80,22 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                 .fillMaxSize()
         ) {
             when(selectedTab){
-                3 -> DiaryView(navController)
+                0 -> NoteView(
+                        navController,
+                        onSnackbarUpdate = { message ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                )
+                3 -> DiaryView(
+                        navController,
+                        onSnackbarUpdate = { message ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                )
             }
 
             Box (

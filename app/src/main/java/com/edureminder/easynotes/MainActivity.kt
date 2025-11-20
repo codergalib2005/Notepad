@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.rememberNavController
 import com.edureminder.easynotes.presentation.navigation.Screen
 import com.edureminder.easynotes.presentation.navigation.SetupNavGraph
+import com.edureminder.easynotes.room.folder.FolderViewModel
 import com.edureminder.easynotes.ui.NotepadTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
@@ -26,6 +28,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
+        val folderViewModel: FolderViewModel by viewModels()
+        folderViewModel.insertDummyDataIfEmpty()
+
         setContent {
             val navController = rememberNavController()
 

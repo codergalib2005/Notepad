@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.edureminder.easynotes.ui.Primary
 
 @Composable
 fun NotesHeader(
@@ -23,16 +24,14 @@ fun NotesHeader(
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(vertical = 10.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         iconContent()
         Spacer(modifier = modifier.width(8.dp))
         Text(
             text = text,
-            color = MaterialTheme.colorScheme.primary,
+            color = Primary,
             fontSize = 20.sp
         )
     }

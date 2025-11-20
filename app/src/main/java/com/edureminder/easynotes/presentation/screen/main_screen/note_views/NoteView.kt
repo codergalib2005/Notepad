@@ -220,13 +220,13 @@ fun NoteView(
                 ) {
                     IconButton(
                         onClick = {
-//                                onToggleSidebar()
+//                         onToggleSidebar()
                         },
                     ) {
                         Icon(
                             imageVector = Icons.Default.Menu,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = Primary,
                             modifier = Modifier
                                 .size(28.dp)
                         )
@@ -354,7 +354,7 @@ fun NoteView(
                         }
                         IconButton(
                             onClick = {
-                                isFilterSheetOpen = true
+                                isSettingOpened = true
                             }
                         ) {
                             Icon(
@@ -489,7 +489,7 @@ fun NoteView(
                             Icon(
                                 imageVector = Icons.Default.MoreHoriz,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = Color.Black,
                             )
                         }
                     }
@@ -553,23 +553,62 @@ fun NoteView(
             }
         }
 
-
-        /*
-             *********************
-             */
-        AnimatedVisibility(visible = selectedNotes.value.isEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                LazyRow(
+        Column {
+            AnimatedVisibility(visible = selectedNotes.value.isEmpty()) {
+                Row(
                     modifier = Modifier
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    item { Spacer(modifier = Modifier.size(3.dp)) }
-                    item {
+                    LazyRow(
+                        modifier = Modifier
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp)
+                    ) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp)
+                                    .shadow(
+                                        elevation = 2.dp,
+                                        shape = CircleShape,
+                                    )
+                                    .background(if (selectedFolderId == "0") Primary else ColorWhite)
+                                    .clickable(
+                                        enabled = selectedFolderId != "0"
+                                    ) {
+                                        selectedFolderId = "0"
+                                    }
+                                    .padding(
+                                        horizontal = 20.dp,
+                                        vertical = 5.dp
+                                    )
+                            ) {
+                                Text(
+                                    text = "All",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = if (selectedFolderId == "0") Color.White else ColorBlack.copy(
+                                        0.6f
+                                    )
+                                )
+                            }
+                        }
+                        items(folders) { folder ->
+                            FolderItem(
+                                folder,
+                                selectedFolderId,
+                                onChange = {
+                                    selectedFolderId = folder.id
+                                }
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.padding(start = 3.dp)
+                    ) {
                         Box(
                             modifier = Modifier
                                 .padding(vertical = 4.dp)
@@ -577,70 +616,26 @@ fun NoteView(
                                     elevation = 2.dp,
                                     shape = CircleShape,
                                 )
-                                .background(if (selectedFolderId == "0") Primary else ColorWhite)
-                                .clickable(
-                                    enabled = selectedFolderId != "0"
-                                ) {
-                                    selectedFolderId = "0"
+                                .background(Color.White)
+                                .clickable() {
+                                    navController.navigate(Screen.FolderScreen)
                                 }
                                 .padding(
-                                    horizontal = 20.dp,
+                                    horizontal = 15.dp,
                                     vertical = 5.dp
                                 )
                         ) {
-                            Text(
-                                text = "All",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = if (selectedFolderId == "0") Color.White else ColorBlack.copy(
-                                    0.6f
-                                )
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = ColorBlack.copy(0.7f),
+                                modifier = Modifier
+                                    .size(19.dp)
                             )
                         }
                     }
-                    items(folders) { folder ->
-                        FolderItem(
-                            folder,
-                            selectedFolderId,
-                            onChange = {
-                                selectedFolderId = folder.id
-                            }
-                        )
-                    }
-                    item { Spacer(modifier = Modifier.size(3.dp)) }
-                }
-                Box(
-                    modifier = Modifier.padding(start = 3.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .shadow(
-                                elevation = 2.dp,
-                                shape = CircleShape,
-                            )
-                            .background(Color.White)
-                            .clickable() {
-                                navController.navigate(Screen.FolderScreen)
-                            }
-                            .padding(
-                                horizontal = 15.dp,
-                                vertical = 5.dp
-                            )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = null,
-                            tint = ColorBlack.copy(0.7f),
-                            modifier = Modifier
-                                .size(19.dp)
-                        )
-                    }
                 }
             }
-
-
-
             if (notesListFlow.value.isEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),

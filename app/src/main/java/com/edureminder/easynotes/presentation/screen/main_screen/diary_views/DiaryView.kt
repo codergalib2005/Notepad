@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,16 +57,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.edureminder.easynotes.R
-import com.edureminder.easynotes.room.diary.DiaryPreview
 import com.edureminder.easynotes.room.diary.DiaryViewModel
 import com.edureminder.easynotes.ui.Container
 import com.edureminder.easynotes.ui.Primary
+import kotlinx.coroutines.Job
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryView (
     navController: NavController,
-    onSnackbarUpdate : (String) -> Unit
+    onSnackbarUpdate: (String) -> Unit,
+    onToggleSidebar: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -133,8 +135,6 @@ fun DiaryView (
     val isScrolled by remember {
         derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
     }
-    Log.d("Log1", "diaries -> $diaries")
-
 
     Column (
         modifier = Modifier
@@ -165,11 +165,22 @@ fun DiaryView (
                 .background(Container),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            IconButton(
+                onClick = {
+                    onToggleSidebar ()
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = null,
+                    tint = Primary,
+                    modifier = Modifier
+                        .size(28.dp)
+                )
+            }
             Text(
                 text = "Diary",
                 fontSize = 20.sp,
-                modifier = Modifier
-                    .padding(start = 10.dp)
             )
             Row (
                 verticalAlignment = Alignment.CenterVertically,

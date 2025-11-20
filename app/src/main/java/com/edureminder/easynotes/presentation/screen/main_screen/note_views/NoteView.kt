@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -117,12 +116,14 @@ import com.edureminder.easynotes.room.note.Type
 import com.edureminder.easynotes.ui.ColorBlack
 import com.edureminder.easynotes.ui.ColorWhite
 import com.edureminder.easynotes.ui.Primary
+import kotlinx.coroutines.Job
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteView(
     navController: NavHostController,
-    onSnackbarUpdate : (String) -> Unit
+    onSnackbarUpdate: (String) -> Unit,
+    onToggleSidebar: () -> Unit
 ) {
     var isSearchOpen by remember { mutableStateOf(false) }
     var isFilterSheetOpen by remember { mutableStateOf(false) }
@@ -220,7 +221,7 @@ fun NoteView(
                 ) {
                     IconButton(
                         onClick = {
-//                         onToggleSidebar()
+                           onToggleSidebar ()
                         },
                     ) {
                         Icon(
@@ -233,10 +234,8 @@ fun NoteView(
                     }
                     if (!searchBarVisible.value) {
                         Text(
-                            text = "Diary",
+                            text = "Notepad",
                             fontSize = 20.sp,
-                            modifier = Modifier
-                                .padding(start = 5.dp)
                         )
                     }
                 }

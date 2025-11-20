@@ -49,12 +49,32 @@ interface DiaryDao {
     suspend fun upsertDiaries(diaries: List<Diary>)
 
     @Query("""
-        SELECT 
-            *,
-            SUBSTR(body, 1, 300) AS preview
+        SELECT *,
+               SUBSTR(body, 1, 300) AS preview
         FROM diary_table
+        WHERE (:search IS NULL OR title LIKE '%' || :search || '%' OR body LIKE '%' || :search || '%')
+          AND (:folderId IS NULL OR folderId = :folderId)
+          AND (:mood IS NULL OR mood = :mood)
+          AND (:createdAfter IS NULL OR createdAt >= :createdAfter)
+          AND (:createdBefore IS NULL OR createdAt <= :createdBefore)
+          AND (:updatedAfter IS NULL OR updatedAt >= :updatedAfter)
+          AND (:updatedBefore IS NULL OR updatedAt <= :updatedBefore)
+        ORDER BY
+            CASE WHEN :sortBy = 'createdAsc' THEN createdAt END ASC,
+            CASE WHEN :sortBy = 'createdDesc' THEN createdAt END DESC,
+            CASE WHEN :sortBy = 'updatedAsc' THEN updatedAt END ASC,
+            CASE WHEN :sortBy = 'updatedDesc' THEN updatedAt END DESC
     """)
-    suspend fun fetchAllDiaries(): List<DiaryRaw>
+    suspend fun fetchFilteredDiaries(
+        search: String? = null,
+        folderId: String? = null,
+        mood: Int? = null,
+        createdAfter: Long? = null,
+        createdBefore: Long? = null,
+        updatedAfter: Long? = null,
+        updatedBefore: Long? = null,
+        sortBy: String? = null // "createdAsc", "createdDesc", "updatedAsc", "updatedDesc"
+    ): List<DiaryRaw>
 
     @Query("SELECT * FROM diary_table WHERE status = 'ACTIVE' ORDER BY updatedAt DESC")
     fun getAllActiveDiaries(): Flow<List<Diary>>

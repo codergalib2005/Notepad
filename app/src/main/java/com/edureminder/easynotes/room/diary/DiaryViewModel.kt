@@ -1,5 +1,6 @@
 package com.edureminder.easynotes.room.diary
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edureminder.easynotes.preferences.notes.SortOrder
@@ -10,35 +11,32 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
     private val repository: DiaryRepository,
 ) : ViewModel() {
+    // Mutable state internally
+    private val _diaries = mutableStateOf<List<DiaryPreview>>(emptyList())
+    val diaries: State<List<DiaryPreview>> = _diaries
 
-//    fun getDiariesByStatusAndSort(
-//        status: Status,
-//        sortOrder: SortOrder,
-//        selectedFolderId: String,
-//        filterByLock: Boolean = true,
-//        locked: Boolean = false,
-//        selectedType: Type? = null
-//    ): Flow<List<Diary>> {
-//        return repository.getDiariesByStatusAndSort(
-//            status,
-//            sortOrder,
-//            selectedFolderId,
-//            filterByLock,
-//            locked,
-//            selectedType
-//        )
-//    }
-
-    fun getAllDiaries(onResult: (List<DiaryPreview>) -> Unit) {
+    fun loadDiaries(
+        search: String? = null,
+        folderId: String? = null,
+        mood: Int? = null,
+        createdAfter: Long? = null,
+        createdBefore: Long? = null,
+        updatedAfter: Long? = null,
+        updatedBefore: Long? = null,
+        sortBy: String? = "createdDesc"
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val diaries = repository.getAllDiaries()
-            onResult(diaries)
+            val list = repository.getAllDiaries(
+                search, folderId, mood, createdAfter, createdBefore, updatedAfter, updatedBefore, sortBy
+            )
+            _diaries.value = list
         }
     }
 

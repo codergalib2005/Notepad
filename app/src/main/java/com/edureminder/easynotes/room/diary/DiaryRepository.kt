@@ -70,10 +70,20 @@ class DiaryRepository(private val diaryDao: DiaryDao) {
             mood = raw.mood
         )
     }
-
-
-    suspend fun getAllDiaries(use24HourFormat: Boolean = false): List<DiaryPreview> {
-        val rawList = diaryDao.fetchAllDiaries()
+    suspend fun getAllDiaries(
+        search: String? = null,
+        folderId: String? = null,
+        mood: Int? = null,
+        createdAfter: Long? = null,
+        createdBefore: Long? = null,
+        updatedAfter: Long? = null,
+        updatedBefore: Long? = null,
+        sortBy: String? = "createdDesc", // default last created first
+        use24HourFormat: Boolean = false
+    ): List<DiaryPreview> {
+        val rawList = diaryDao.fetchFilteredDiaries(
+            search, folderId, mood, createdAfter, createdBefore, updatedAfter, updatedBefore, sortBy
+        )
         return rawList.map { mapDiaryRawToPreview(it, use24HourFormat) }
     }
 

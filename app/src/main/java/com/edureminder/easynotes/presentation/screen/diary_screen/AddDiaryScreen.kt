@@ -1,6 +1,7 @@
 package com.edureminder.easynotes.presentation.screen.diary_screen
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -18,6 +19,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -152,6 +154,50 @@ fun AddDiaryScreen(
                 cancelScheduledExactNoteWorkerIfExists(context, newDiary.id)
             }
         }
+    }
+
+    BackHandler {
+        // Only save if not saved already
+        if (!hasSaved) {
+            coroutineScope.launch {
+                val selectedDaysString = editorViewModel.repeatableDays
+                    .filter { it.isSelected }
+                    .joinToString(",") { it.day.toString() }
+                val images = Json.encodeToString(editorViewModel.selectedImages)
+                val canvas = Json.encodeToString(editorViewModel.canvasItems)
+
+                val newDiary = Diary(
+                    title = editorViewModel.title.ifEmpty { "Untitled" },
+                    body = richTextState.toHtml(),
+                    isFavourite = editorViewModel.isPinned,
+                    isLocked = editorViewModel.isLocked,
+                    folderId = editorViewModel.selectedFolder?.id ?: "0",
+                    backgroundId = editorViewModel.selectedBackground.id,
+                    images = images,
+                    stickers = canvas,
+                    reminderTime = editorViewModel.timeText,
+                    reminderDate = editorViewModel.dateText,
+                    reminderType = editorViewModel.selectReminderType.id,
+                    repeatDays = selectedDaysString,
+                )
+                diaryViewModel.upsertDiary(newDiary)
+                hasSaved = true
+
+                // Schedule or cancel reminders
+                if (newDiary.reminderType == 2) {
+                    scheduleExactNoteWorker(
+                        context = context,
+                        timeString = editorViewModel.timeText,
+                        selectedDaysString = selectedDaysString,
+                        uniqueWorkId = newDiary.id,
+                        date = editorViewModel.dateText
+                    )
+                } else {
+                    cancelScheduledExactNoteWorkerIfExists(context, newDiary.id)
+                }
+            }
+        }
+        navController.navigateUp()
     }
 
     val modeViewModel = ModeViewModel(context)

@@ -1,5 +1,6 @@
 package com.edureminder.easynotes.presentation.screen.main_screen.diary_views
 
+import android.graphics.BlurMaskFilter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,9 +31,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,22 +51,42 @@ import com.edureminder.easynotes.R
 import com.edureminder.easynotes.room.diary.Diary
 import com.edureminder.easynotes.room.diary.DiaryPreview
 import com.edureminder.easynotes.room.diary.DiaryViewModel
+import com.edureminder.easynotes.ui.Container
 import com.edureminder.easynotes.ui.Primary
 
 @Composable
 fun DiaryView (navController: NavController) {
+    val context = LocalContext.current
     val diaryViewModel: DiaryViewModel = hiltViewModel()
-    // State for diaries
-    var diaries by remember { mutableStateOf<List<DiaryPreview>>(emptyList()) }
-    // State for loading
-    var isLoading by remember { mutableStateOf(true) }
+    val searchText = remember { mutableStateOf("") }
 
-    // Load diaries once when the composable enters composition
-    LaunchedEffect(Unit) {
-        diaryViewModel.getAllDiaries { fetchedDiaries ->
-            diaries = fetchedDiaries
-            isLoading = false
-        }
+    // Load filter preferences
+    val diaryFilter = remember { DiaryFilterPreference(context) }
+
+    val selectedFolder = remember { mutableStateOf(diaryFilter.folder) }
+    val selectedMood = remember { mutableStateOf(diaryFilter.mood) }
+    val sortOption = remember { mutableStateOf(diaryFilter.sortOption ?: "createdDesc") }
+    val listState = rememberLazyListState()
+    val diaryList by diaryViewModel.diaries
+
+    // Load diaries with filters
+    LaunchedEffect(searchText.value, selectedFolder.value, selectedMood.value, sortOption.value) {
+        diaryViewModel.loadDiaries(
+            search = searchText.value.ifEmpty { null },
+            folderId = selectedFolder.value,
+            mood = selectedMood.value,
+            sortBy = sortOption.value
+        )
+    }
+
+    // Save filters whenever they change
+    LaunchedEffect(selectedFolder.value, selectedMood.value, sortOption.value) {
+        diaryFilter.folder = selectedFolder.value
+        diaryFilter.mood = selectedMood.value
+        diaryFilter.sortOption = sortOption.value
+    }
+    val isScrolled by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
     }
 
 
@@ -68,7 +97,24 @@ fun DiaryView (navController: NavController) {
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
+                .height(50.dp)
+                .drawBehind {
+                    val shadowHeight = 12.dp.toPx() // adjust shadow thickness
+                    drawIntoCanvas { canvas ->
+                        val paint = Paint().asFrameworkPaint()
+                        paint.color = android.graphics.Color.BLACK
+                        paint.alpha = (0.2f * 255).toInt()
+                        paint.maskFilter = BlurMaskFilter(shadowHeight, BlurMaskFilter.Blur.NORMAL)
+                        canvas.nativeCanvas.drawRect(
+                            0f,
+                            size.height - shadowHeight,
+                            size.width,
+                            size.height,
+                            paint
+                        )
+                    }
+                }
+                .background(Container),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -80,6 +126,7 @@ fun DiaryView (navController: NavController) {
             )
             Row (
                 modifier = Modifier
+                    .padding(end = 10.dp)
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(Color.Red)
                     .padding(horizontal = 5.dp, vertical = 3.dp),
@@ -111,9 +158,21 @@ fun DiaryView (navController: NavController) {
                         .size(18.dp)
                 )
             }
+            IconButton(
+                onClick = {}
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.option),
+                    contentDescription = "search icon",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .size(18.dp)
+                )
+            }
         }
 
         LazyColumn(
+            state = listState,
             contentPadding = PaddingValues(top = 10.dp, start = 10.dp, end = 10.dp, bottom = 110.dp),
             verticalArrangement = Arrangement.spacedBy(17.dp),
         ) {
@@ -153,7 +212,7 @@ fun DiaryView (navController: NavController) {
                     }
                 }
             }
-            items(diaries){ diary ->
+            items(diaryList){ diary ->
                 DiaryItem(diary, navController)
             }
         }

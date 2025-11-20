@@ -52,9 +52,11 @@ fun DiaryItem(
 ) {
     val restoredImages = Json.decodeFromString<List<String>>(diary.images)
 
+
     Row (
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
@@ -84,7 +86,7 @@ fun DiaryItem(
                         cap = StrokeCap.Round
                     )
                 }
-                .padding(top = 10.dp, bottom = 10.dp),
+                .padding(bottom = 10.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Text(

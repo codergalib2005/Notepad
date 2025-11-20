@@ -54,27 +54,39 @@ interface DiaryDao {
         FROM diary_table
         WHERE (:search IS NULL OR title LIKE '%' || :search || '%' OR body LIKE '%' || :search || '%')
           AND (:folderId IS NULL OR folderId = :folderId)
-          AND (:mood IS NULL OR mood = :mood)
           AND (:createdAfter IS NULL OR createdAt >= :createdAfter)
           AND (:createdBefore IS NULL OR createdAt <= :createdBefore)
           AND (:updatedAfter IS NULL OR updatedAt >= :updatedAfter)
           AND (:updatedBefore IS NULL OR updatedAt <= :updatedBefore)
         ORDER BY
+            CASE WHEN :sortBy = 'titleAsc' THEN title END ASC,
+            CASE WHEN :sortBy = 'titleDesc' THEN title END DESC,
             CASE WHEN :sortBy = 'createdAsc' THEN createdAt END ASC,
             CASE WHEN :sortBy = 'createdDesc' THEN createdAt END DESC,
             CASE WHEN :sortBy = 'updatedAsc' THEN updatedAt END ASC,
             CASE WHEN :sortBy = 'updatedDesc' THEN updatedAt END DESC
     """)
-    suspend fun fetchFilteredDiaries(
-        search: String? = null,
-        folderId: String? = null,
-        mood: Int? = null,
-        createdAfter: Long? = null,
-        createdBefore: Long? = null,
-        updatedAfter: Long? = null,
-        updatedBefore: Long? = null,
-        sortBy: String? = null // "createdAsc", "createdDesc", "updatedAsc", "updatedDesc"
-    ): List<DiaryRaw>
+    fun fetchFilteredDiaries(
+        search: String?,
+        folderId: String?,
+        createdAfter: Long?,
+        createdBefore: Long?,
+        updatedAfter: Long?,
+        updatedBefore: Long?,
+        sortBy: String?
+    ): Flow<List<DiaryRaw>> // <- remove 'suspend'
+
+
+
+
+    @Query("""
+        SELECT id, title, SUBSTR(body, 1, 300) AS preview, createdAt, mood, images
+        FROM diary_table
+    """)
+    suspend fun getAllDiaries(): List<DiaryRaw>
+
+
+
 
     @Query("SELECT * FROM diary_table WHERE status = 'ACTIVE' ORDER BY updatedAt DESC")
     fun getAllActiveDiaries(): Flow<List<Diary>>
@@ -97,7 +109,7 @@ interface DiaryDao {
 //          AND (:lockedParam IS NULL OR locked = :lockedParam)
 //          AND (:selectedFolderId = '0' OR folderId = :selectedFolderId)
 //          AND (:selectedType IS NULL OR type = :selectedType)
-//        ORDER BY 
+//        ORDER BY
 //            CASE WHEN :sortOrder = 'TITLE_ASCENDING' THEN title END ASC,
 //            CASE WHEN :sortOrder = 'TITLE_DESCENDING' THEN title END DESC,
 //            CASE WHEN :sortOrder = 'DATE_OLDEST_FIRST' THEN createdAt END ASC,
@@ -223,7 +235,7 @@ interface DiaryDao {
 
     @Query("SELECT * FROM diary_table WHERE id = :id LIMIT 1")
     fun getADiaryById(id: String): Diary?
-    
+
 
     @Query("SELECT * FROM diary_table WHERE status = :status ORDER BY updatedAt DESC LIMIT 1")
     suspend fun getLatestDiary(status: String = Status.ACTIVE.name): Diary?

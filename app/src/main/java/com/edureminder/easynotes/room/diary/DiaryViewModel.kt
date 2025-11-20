@@ -3,7 +3,6 @@ package com.edureminder.easynotes.room.diary
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.edureminder.easynotes.preferences.notes.SortOrder
 import com.edureminder.easynotes.room.note.Status
 import com.edureminder.easynotes.room.note.Type
 import kotlinx.coroutines.Dispatchers
@@ -13,14 +12,24 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import com.edureminder.easynotes.presentation.screen.main_screen.diary_views.SortOrder
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
 
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
     private val repository: DiaryRepository,
 ) : ViewModel() {
     // Mutable state internally
-    private val _diaries = mutableStateOf<List<DiaryPreview>>(emptyList())
-    val diaries: State<List<DiaryPreview>> = _diaries
+    private val _diaries = MutableStateFlow<List<DiaryPreview>>(emptyList())
+    val diaries: StateFlow<List<DiaryPreview>> = _diaries
+
+
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
 
     fun loadDiaries(
         search: String? = null,
@@ -30,15 +39,33 @@ class DiaryViewModel @Inject constructor(
         createdBefore: Long? = null,
         updatedAfter: Long? = null,
         updatedBefore: Long? = null,
-        sortBy: String? = "createdDesc"
+        sortBy: String? = SortOrder.DATE_NEWEST_FIRST.value
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val list = repository.getAllDiaries(
-                search, folderId, mood, createdAfter, createdBefore, updatedAfter, updatedBefore, sortBy
-            )
-            _diaries.value = list
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            repository.getAllDiariesFlow(
+                search,
+                folderId,
+                createdAfter,
+                createdBefore,
+                updatedAfter,
+                updatedBefore,
+                sortBy
+            ).collect { list ->
+                _diaries.value = list
+            }
+
+            _isLoading.value = false
         }
     }
+
+
+//    fun allDiaries(): Flow<List<DiaryPreview>> {
+//        return repository.allDiaries()
+//    }
+
+
 
     fun getOneDiary(id: String): Flow<Diary> {
         return repository.getOneDiary(id)

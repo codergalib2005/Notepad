@@ -2,12 +2,14 @@ package com.edureminder.easynotes.room.diary
 
 
 import android.annotation.SuppressLint
-import com.edureminder.easynotes.preferences.notes.SortOrder
+import android.util.Log
+import com.edureminder.easynotes.presentation.screen.main_screen.diary_views.SortOrder
 import com.edureminder.easynotes.room.note.Note
 import com.edureminder.easynotes.room.note.Status
 import com.edureminder.easynotes.room.note.SyncStatus
 import com.edureminder.easynotes.room.note.Type
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.Calendar
 
 class DiaryRepository(private val diaryDao: DiaryDao) {
@@ -17,25 +19,6 @@ class DiaryRepository(private val diaryDao: DiaryDao) {
     fun getOneDiary(id: String): Flow<Diary> {
         return diaryDao.getOneDiary(id)
     }
-
-    // Get notes by status and folderId with sorting
-//    fun getNotesByStatusAndSort(
-//        status: Status,
-//        sortOrder: SortOrder,
-//        selectedFolderId: String,
-//        filterByLock: Boolean,
-//        locked: Boolean,
-//        selectedType: Type?
-//    ): Flow<List<Note>> {
-//        val lockedParam: Boolean? = if (filterByLock) locked else null
-//        return noteDao.getNotesByStatusAndSort(
-//            status = status,
-//            sortOrder = sortOrder.name, // Convert enum to String
-//            selectedFolderId = selectedFolderId,
-//            lockedParam = lockedParam,
-//            selectedType = selectedType
-//        )
-//    }
     @SuppressLint("DefaultLocale")
     fun mapDiaryRawToPreview(raw: DiaryRaw, use24HourFormat: Boolean): DiaryPreview {
         val calendar = Calendar.getInstance().apply { timeInMillis = raw.createdAt }
@@ -70,22 +53,32 @@ class DiaryRepository(private val diaryDao: DiaryDao) {
             mood = raw.mood
         )
     }
-    suspend fun getAllDiaries(
+    suspend fun getAllDiariesFlow(
         search: String? = null,
         folderId: String? = null,
-        mood: Int? = null,
         createdAfter: Long? = null,
         createdBefore: Long? = null,
         updatedAfter: Long? = null,
         updatedBefore: Long? = null,
-        sortBy: String? = "createdDesc", // default last created first
+        sortBy: String? = SortOrder.DATE_NEWEST_FIRST.value,
         use24HourFormat: Boolean = false
-    ): List<DiaryPreview> {
-        val rawList = diaryDao.fetchFilteredDiaries(
-            search, folderId, mood, createdAfter, createdBefore, updatedAfter, updatedBefore, sortBy
-        )
-        return rawList.map { mapDiaryRawToPreview(it, use24HourFormat) }
+    ): Flow<List<DiaryPreview>> {
+        return diaryDao.fetchFilteredDiaries(
+            search,
+            folderId,
+            createdAfter,
+            createdBefore,
+            updatedAfter,
+            updatedBefore,
+            sortBy
+        ).map { rawList ->
+            rawList.map { raw -> mapDiaryRawToPreview(raw, use24HourFormat) }
+        }
     }
+
+
+
+
 
     // Upsert (Insert or Update) a note
     suspend fun upsertDiary(diary: Diary) {

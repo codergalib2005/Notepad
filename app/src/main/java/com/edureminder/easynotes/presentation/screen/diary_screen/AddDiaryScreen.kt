@@ -1,6 +1,7 @@
 package com.edureminder.easynotes.presentation.screen.diary_screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -111,6 +112,7 @@ fun AddDiaryScreen(
             editorViewModel.selectedFolder = folders.first()
         }
     }
+    Log.d("Log1", "strings -> ${richTextState.toMarkdown()}")
 
     fun onSaveDiary() {
         if (hasSaved) return
@@ -124,7 +126,7 @@ fun AddDiaryScreen(
 
             val newDiary = Diary(
                 title = editorViewModel.title.ifEmpty { "Untitled" },
-                body = richTextState.toHtml(),
+                body = richTextState.toMarkdown(),
                 isFavourite = editorViewModel.isPinned,
                 isLocked = editorViewModel.isLocked,
                 folderId = editorViewModel.selectedFolder?.id ?: "0",
@@ -168,7 +170,7 @@ fun AddDiaryScreen(
 
                 val newDiary = Diary(
                     title = editorViewModel.title.ifEmpty { "Untitled" },
-                    body = richTextState.toHtml(),
+                    body = richTextState.toMarkdown(),
                     isFavourite = editorViewModel.isPinned,
                     isLocked = editorViewModel.isLocked,
                     folderId = editorViewModel.selectedFolder?.id ?: "0",

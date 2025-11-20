@@ -130,12 +130,12 @@ fun EditDiaryScreen(
             selectedImages = safeDecodeList(currentDiary.images)
             canvasItems = safeDecodeList(currentDiary.stickers)
         }
-        richTextState.setHtml(currentDiary.body)
+        richTextState.setMarkdown(currentDiary.body)
     }
 
     // Update body HTML whenever richTextState changes
     LaunchedEffect(richTextState.annotatedString) {
-        editorViewModel.body = richTextState.toHtml()
+        editorViewModel.body = richTextState.toMarkdown()
     }
 
     fun onSaveDiary() {

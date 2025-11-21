@@ -29,13 +29,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.edureminder.easynotes.R
 import com.edureminder.easynotes.drive.AuthViewModel
 import com.edureminder.easynotes.presentation.components.drawer.CustomDrawer
 import com.edureminder.easynotes.presentation.navigation.Screen
+import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
 import com.edureminder.easynotes.presentation.screen.main_screen.diary_views.DiaryView
 import com.edureminder.easynotes.presentation.screen.main_screen.note_views.NoteView
 import com.edureminder.easynotes.presentation.screen.main_screen.task_add.TaskAddSheet
@@ -51,13 +54,15 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
     var selectedTab by rememberSaveable {
         mutableIntStateOf(0)
     }
+    val editorViewModel: NoteEditorViewModel = hiltViewModel()
+
     val tasksTypes = listOf(
         TaskTypeItem(
             1,
             name = "Task",
             icon = R.drawable.task,
             onClick = {
-                navController.navigate(Screen.AddNoteScreen)
+                editorViewModel.addTaskSheetOpen = true
             }
         ),
         TaskTypeItem(
@@ -93,12 +98,17 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val isDarkMode by modeViewModel.isDarkTheme.collectAsState()
-    val bottomSheet = rememberModalBottomSheetState (
+    val bottomSheet = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
-        confirmValueChange = {
-            it != SheetValue.Hidden
+        confirmValueChange = { newValue ->
+            // Allow hiding only through outside click (onDismissRequest)
+            // Block swipe-down by keeping sheet expanded
+            if (newValue == SheetValue.Hidden) false // block swipe drag down
+            else true
         }
     )
+
+
 
 
     ModalNavigationDrawer(
@@ -121,7 +131,8 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                     isDarkMode
                 )
             }
-        }
+        },
+
     ) {
         Scaffold(
             floatingActionButton = {
@@ -188,7 +199,7 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                             selectedTab,
                             onTabSelected = {
                                 selectedTab = it
-                            }
+                            },
                         )
                     }
                 }

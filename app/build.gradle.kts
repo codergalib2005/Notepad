@@ -111,6 +111,8 @@ dependencies {
 
     implementation("com.github.codergalib2005:compose-reorderable:1.0.0")
 
+    implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
+
 
     // ---------- In App Update
     implementation("com.google.android.play:app-update:2.1.0")

@@ -186,6 +186,8 @@ class NoteEditorViewModel : ViewModel() {
 
     var selectedCategory by mutableStateOf("Color")
 
+    var addTaskSheetOpen by mutableStateOf(true)
+
 //    val isMoreOptionsOpen = remember { mutableStateOf(false) }
 
 

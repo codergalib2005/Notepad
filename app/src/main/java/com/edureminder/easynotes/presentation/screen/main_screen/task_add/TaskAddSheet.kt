@@ -112,11 +112,7 @@ fun TaskAddSheet(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isDatePicker by remember { mutableStateOf(false) }
-    var selectedDateTime by remember {
-        mutableStateOf(
-            LocalDateTime.now().plusDays(1).withSecond(0).withNano(0).plusMinutes(5)
-        )
-    }
+    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var amPmState by remember { mutableStateOf<TimeFormat?>(null) }
     val repeatableDays = remember {
         mutableStateOf(
@@ -145,6 +141,11 @@ fun TaskAddSheet(
             )
         )
     }
+    val defaultDateTime = LocalDateTime.now()
+        .plusDays(1)
+        .withSecond(0)
+        .withNano(0)
+        .plusMinutes(5)
 
     LaunchedEffect(bottomSheet.currentValue) {
         if (bottomSheet.isVisible) {
@@ -270,10 +271,12 @@ fun TaskAddSheet(
                                     .toMutableList()
                             },
                             onValueChange = { newText ->
-                                subTasks = subTasks.map {
-                                    if (it.id == subtask.id) it.copy(text = newText)
-                                    else it
-                                }.toMutableList()
+                                if(newText.length <= 300) {
+                                    subTasks = subTasks.map {
+                                        if (it.id == subtask.id) it.copy(text = newText)
+                                        else it
+                                    }.toMutableList()
+                                }
                             }
                         )
                     }
@@ -284,7 +287,7 @@ fun TaskAddSheet(
                         .fillMaxWidth()
                         .padding(horizontal = 13.dp, vertical = 5.dp),
                 ){
-                    AnimatedVisibility(true) {
+                    AnimatedVisibility(isDatePicker) {
                         Row (
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -292,9 +295,9 @@ fun TaskAddSheet(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             WheelDateTimePicker(
-                                startDateTime = selectedDateTime,
+                                startDateTime = selectedDateTime ?: defaultDateTime,
                                 minDateTime = LocalDateTime.now(),
-                                timeFormat = amPmState ?: TimeFormat.AM_PM, // use state if selected
+                                timeFormat = amPmState ?: TimeFormat.HOUR_24, // use state if selected
                                 textStyle = MaterialTheme.typography.titleSmall,
                                 textColor = ColorBlack,
                                 selectorProperties = WheelPickerDefaults.selectorProperties(
@@ -305,9 +308,7 @@ fun TaskAddSheet(
                                     )
                                 )
                             ) { snappedDateTime ->
-                                // Update picked date and time
                                 selectedDateTime = snappedDateTime
-                                // Update AM/PM based on snapped time
                             }
                             Column (
                                 modifier = Modifier
@@ -415,7 +416,9 @@ fun TaskAddSheet(
                             }
                             IconButton(
                                 onClick = {
-                                    subTasks = (subTasks + SubTask()).toMutableList()
+                                    if (subTasks.size < 100) {
+                                        subTasks = (subTasks + SubTask()).toMutableList()
+                                    }
                                 }
                             ) {
                                 Icon(
@@ -485,7 +488,6 @@ fun SubTaskView(
         BasicTextField(
             value = subtask.text,
             onValueChange = onValueChange,
-            singleLine = true,
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 color = if (subtask.isCompleted) Color.Gray else ColorBlack,

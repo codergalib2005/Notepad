@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
     val scope = rememberCoroutineScope()
     var selectedTab by rememberSaveable {
-        mutableIntStateOf(0)
+        mutableIntStateOf(1)
     }
     val editorViewModel: NoteEditorViewModel = hiltViewModel()
 

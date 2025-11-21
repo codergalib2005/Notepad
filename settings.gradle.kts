@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Notepad"
+rootProject.name = "Notepad - Notes, Diary, Task"
 include(":app")
 include(":feature:texteditor")

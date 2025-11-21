@@ -10,12 +10,12 @@ plugins {
 
 
 android {
-    namespace = "com.edureminder.easynotes"
+    namespace = "com.edureminder.notebook"
     compileSdk = 36
 
 
     defaultConfig {
-        applicationId = "com.edureminder.easynotes"
+        applicationId = "com.edureminder.notebook"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

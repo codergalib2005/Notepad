@@ -11,13 +11,16 @@ import com.edureminder.easynotes.room.folder.Folder
 import com.edureminder.easynotes.room.folder.FolderDao
 import com.edureminder.easynotes.room.note.Note
 import com.edureminder.easynotes.room.note.NoteDao
+import com.edureminder.easynotes.room.todo.Todo
+import com.edureminder.easynotes.room.todo.TodoDao
 import com.edureminder.easynotes.room.utils.Converters
 
 @Database(
     entities = [
         Folder::class,
         Note::class,
-        Diary::class
+        Diary::class,
+        Todo::class
     ],
     version = 1, // bump version
     exportSchema = true
@@ -27,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun folderDao(): FolderDao
     abstract fun noteDao(): NoteDao
     abstract fun diaryDao(): DiaryDao
+    abstract fun todoDao(): TodoDao
 
     companion object {
         @Volatile

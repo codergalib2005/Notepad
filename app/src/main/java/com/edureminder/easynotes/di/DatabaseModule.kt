@@ -8,6 +8,8 @@ import com.edureminder.easynotes.room.folder.FolderDao
 import com.edureminder.easynotes.room.folder.FolderRepository
 import com.edureminder.easynotes.room.note.NoteDao
 import com.edureminder.easynotes.room.note.NoteRepository
+import com.edureminder.easynotes.room.todo.TodoDao
+import com.edureminder.easynotes.room.todo.TodoRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,5 +48,11 @@ object DatabaseModule {
     fun provideDiaryRepository(diaryDao: DiaryDao): DiaryRepository =
         DiaryRepository(diaryDao)
 
+    @Provides
+    fun provideTodoDao(db: AppDatabase): TodoDao = db.todoDao()
+
+    @Provides
+    fun provideTodoRepository(todoDao: TodoDao): TodoRepository =
+        TodoRepository(todoDao)
 
 }

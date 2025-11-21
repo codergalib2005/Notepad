@@ -1,20 +1,15 @@
 package com.edureminder.easynotes.presentation.screen.main_screen.task_add
 
-import android.graphics.drawable.shapes.Shape
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -31,7 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,17 +33,13 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,43 +48,47 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.commandiron.wheel_picker_compose.WheelDateTimePicker
-import com.commandiron.wheel_picker_compose.core.SelectorProperties
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.commandiron.wheel_picker_compose.core.WheelPickerDefaults
 import com.edureminder.easynotes.R
+import com.edureminder.easynotes.notification.scheduleNotification
 import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
 import com.edureminder.easynotes.presentation.screen.edit_note.SelectedDay
 import com.edureminder.easynotes.presentation.screen.edit_note.components.FolderList
 import com.edureminder.easynotes.room.folder.FolderViewModel
+import com.edureminder.easynotes.room.todo.Todo
+import com.edureminder.easynotes.room.todo.TodoViewModel
 import com.edureminder.easynotes.ui.ColorBlack
 import com.edureminder.easynotes.ui.ColorWhite
 import com.edureminder.easynotes.ui.Primary
-import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 
 
+@Serializable
 data class SubTask(
     val id: Long = System.currentTimeMillis(),
     var text: String = "",
     var isCompleted: Boolean = false
 )
+
 data class SelectedDay(
     val day: Int,
     val isSelected: Boolean = true
@@ -105,7 +99,9 @@ data class SelectedDay(
 fun TaskAddSheet(
     bottomSheet: SheetState,
     navController: NavController,
+    todoViewModel: TodoViewModel,
 ) {
+    val context = LocalContext.current
     val folderViewModel: FolderViewModel = hiltViewModel()
     val editorViewModel: NoteEditorViewModel = hiltViewModel()
     val folders by folderViewModel.allFolders.collectAsState(initial = emptyList())
@@ -162,6 +158,82 @@ fun TaskAddSheet(
     var title by remember { mutableStateOf("") }
     var subTasks by remember { mutableStateOf(emptyList<SubTask>()) }
 
+
+    fun saveTask(){
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val timeFormatter = DateTimeFormatter.ofPattern("H:m")
+        var dateText = ""
+        var formattedTime = ""
+        val jsonString = Json.encodeToString(subTasks)
+
+        selectedDateTime?.let { dateTime ->
+            // Format selectedDateTime to strings
+            dateText = dateTime.format(dateFormatter)
+            formattedTime = dateTime.format(timeFormatter)
+        }
+
+
+        val selectedDaysString = repeatableDays.value
+            .filter { it.isSelected }
+            .joinToString(",") { it.day.toString() }
+
+        val todo = Todo(
+            title = title.ifEmpty {
+                "No Name"
+            },
+            date = dateText.ifEmpty {
+                SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(
+                    Calendar.getInstance().time
+                ).toString()
+            },
+            time = formattedTime,
+            notificationID = ((0..2000).random() - (0..50).random()),
+            repeatDays = selectedDaysString,
+            subtask = jsonString,
+            folderId = editorViewModel.selectedFolder?.id ?: "0",
+
+        )
+
+        todoViewModel.insertTodoAndGet(todo) { insertedTodo ->
+            insertedTodo.id.let {
+                // if(timeText.value.isNotEmpty()){
+                //     scheduleTodoWorker(context, it, dateText.value, timeText.value)
+                // }
+
+                // if user didn’t pick a date, fallback to today
+                if (dateText.isEmpty()) {
+                    dateText = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+                        .format(Calendar.getInstance().time)
+                }
+
+                // check if todo has both date and time
+                if (insertedTodo.date.isNotEmpty() && insertedTodo.time.isNotEmpty()) {
+                    // Parse the saved date from DB (yyyy-MM-dd)
+                    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val parsedDate = format.parse(insertedTodo.date)
+
+                    val calendar = Calendar.getInstance().apply {
+                        time = parsedDate!!
+                        set(Calendar.HOUR_OF_DAY, insertedTodo.time.substringBefore(":").toInt())
+                        set(Calendar.MINUTE, insertedTodo.time.substringAfter(":").toInt())
+                        set(Calendar.SECOND, 0)
+                    }
+
+                    if (calendar.timeInMillis > System.currentTimeMillis()) {
+                        scheduleNotification(
+                            context,
+                            titleText = insertedTodo.title,
+                            messageText = "Tap to open",
+                            triggerAtMillis = calendar.timeInMillis,
+                            todo = insertedTodo
+                        )
+                    }
+                }
+            }
+        }
+
+        editorViewModel.addTaskSheetOpen = false
+    }
 
     if(editorViewModel.addTaskSheetOpen){
         ModalBottomSheet(
@@ -431,6 +503,7 @@ fun TaskAddSheet(
                         }
                         IconButton(
                             onClick = {
+                                saveTask()
                             },
                             modifier = Modifier
                                 .size(50.dp)

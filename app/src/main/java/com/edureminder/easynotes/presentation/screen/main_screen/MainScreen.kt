@@ -29,7 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,6 +41,8 @@ import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewMod
 import com.edureminder.easynotes.presentation.screen.main_screen.diary_views.DiaryView
 import com.edureminder.easynotes.presentation.screen.main_screen.note_views.NoteView
 import com.edureminder.easynotes.presentation.screen.main_screen.task_add.TaskAddSheet
+import com.edureminder.easynotes.presentation.screen.main_screen.task_views.TaskView
+import com.edureminder.easynotes.room.todo.TodoViewModel
 import com.edureminder.easynotes.ui.Container
 import com.edureminder.easynotes.ui.mode.ModeViewModel
 import kotlinx.coroutines.launch
@@ -55,6 +56,8 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
         mutableIntStateOf(1)
     }
     val editorViewModel: NoteEditorViewModel = hiltViewModel()
+    val todoViewModel: TodoViewModel = hiltViewModel()
+
 
     val tasksTypes = listOf(
         TaskTypeItem(
@@ -158,35 +161,50 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                 ) {
                     when (selectedTab) {
                         0 -> NoteView(
-                            navController,
-                            onSnackbarUpdate = { message ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(message)
-                                }
-                            },
-                            onToggleSidebar = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
+                                navController,
+                                onSnackbarUpdate = { message ->
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(message)
+                                    }
+                                },
+                                onToggleSidebar = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
                                     }
                                 }
-                            }
+                        )
+                        1 -> TaskView(
+                                navController,
+                                onSnackbarUpdate = { message ->
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(message)
+                                    }
+                                },
+                                onToggleSidebar = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
+                                    }
+                                }
                         )
 
                         3 -> DiaryView(
-                            navController,
-                            onSnackbarUpdate = { message ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(message)
-                                }
-                            },
-                            onToggleSidebar = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
+                                navController,
+                                onSnackbarUpdate = { message ->
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(message)
+                                    }
+                                },
+                                onToggleSidebar = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
                                     }
                                 }
-                            }
                         )
                     }
 
@@ -204,7 +222,7 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                     }
                 }
             }
-            TaskAddSheet(bottomSheet, navController)
+            TaskAddSheet(bottomSheet, navController, todoViewModel)
         }
     }
 }

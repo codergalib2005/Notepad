@@ -1,7 +1,13 @@
-package com.edureminder.easynotes.presentation.screen.main_screen.note_views
+package com.edureminder.easynotes.presentation.screen.main_screen.task_views
 
 import android.graphics.BlurMaskFilter
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -11,177 +17,111 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.Notes
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Title
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import com.edureminder.easynotes.R
-import com.edureminder.easynotes.datastore.SettingsStore
-import com.edureminder.easynotes.preferences.notes.NotesSettingsViewModel
-import com.edureminder.easynotes.room.folder.FolderViewModel
-import com.edureminder.easynotes.room.note.Note
-import com.edureminder.easynotes.room.note.NoteViewModel
-import com.edureminder.easynotes.room.note.Status
-import com.edureminder.easynotes.ui.Container
-import com.edureminder.easynotes.viewmodels.MainViewModel
-import androidx.compose.runtime.State
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.window.Dialog
-import com.edureminder.easynotes.preferences.notes.SortOrder
-import com.edureminder.easynotes.preferences.notes.ViewType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.edureminder.easynotes.R
+import com.edureminder.easynotes.datastore.SettingsStore
 import com.edureminder.easynotes.presentation.navigation.Screen
-import com.edureminder.easynotes.presentation.screen.edit_note.NoteEditorViewModel
-import com.edureminder.easynotes.presentation.screen.edit_note.components.NoteDeletePopup
-import com.edureminder.easynotes.presentation.screen.folder_screen.components.AddOrRenameFolderPopupOpen
-import com.edureminder.easynotes.room.folder.Folder
-import com.edureminder.easynotes.room.note.Type
+import com.edureminder.easynotes.presentation.screen.main_screen.note_views.FolderItem
+import com.edureminder.easynotes.room.folder.FolderViewModel
+import com.edureminder.easynotes.room.note.Note
+import com.edureminder.easynotes.room.todo.Todo
+import com.edureminder.easynotes.room.todo.TodoViewModel
 import com.edureminder.easynotes.ui.ColorBlack
 import com.edureminder.easynotes.ui.ColorWhite
+import com.edureminder.easynotes.ui.Container
 import com.edureminder.easynotes.ui.Primary
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoteView(
+fun TaskView (
     navController: NavHostController,
     onSnackbarUpdate: (String) -> Unit,
     onToggleSidebar: () -> Unit
-) {
-    var isSearchOpen by remember { mutableStateOf(false) }
-    val searchText = rememberSaveable {
-        mutableStateOf("")
-    }
-    val listState = rememberLazyListState()
-
-    val isScrolled by remember {
-        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
-    }
-
+){
     val context = LocalContext.current
-    val settingsStore = SettingsStore(context)
-    val is24HourClock by settingsStore.getClockKey.collectAsState(initial = false)
-    val mainViewModel: MainViewModel = viewModel()
-    val isPro by mainViewModel.isPro.collectAsState()
-    val settingsViewModel: NotesSettingsViewModel = hiltViewModel()
-    val viewType by settingsViewModel.viewType.collectAsState()
-    val sortOrder = settingsViewModel.sortOrder.collectAsState()
-    val noteType = settingsViewModel.noteType.collectAsState()
-
-    val notesViewModel: NoteViewModel = hiltViewModel()
+    val todoViewModel: TodoViewModel = hiltViewModel()
     val folderViewModel: FolderViewModel = hiltViewModel()
-    val editorViewModel: NoteEditorViewModel = hiltViewModel()
-    var selectedFolderId by rememberSaveable { mutableStateOf("0") }
-    var isLockedNote by rememberSaveable { mutableStateOf(false) }
-
-    val notesListFlow: State<List<Note>> = notesViewModel
-        .getNotesByStatusAndSort(
-            status = Status.ACTIVE,
-            sortOrder = sortOrder.value, // Make sure sortOrder.value is of type SortOrder
-            selectedFolderId = selectedFolderId,
-            filterByLock = true,
-            locked = isLockedNote,
-            noteType.value
-        )
-        .collectAsState(initial = emptyList())
-
-    val pendingCount by notesViewModel.getPendingSyncNoteCount().collectAsState(initial = 0)
-
-    val currentSearchText = rememberUpdatedState(searchText.value)
-    val searchBarVisible = rememberSaveable {
-        mutableStateOf(false)
-    }
-    val isMoreFeatureOpened = remember {
-        mutableStateOf(false)
-    }
-
-    var isSettingOpened by remember {
-        mutableStateOf(false)
-    }
-    val sheetState = rememberModalBottomSheetState()
     val folders by folderViewModel.allFolders.collectAsState(initial = emptyList())
-    val folderMap = folders.associateBy { it.id }
-    val selectedNotes = remember {
-        mutableStateOf(emptyList<Note>())
-    }
+    var todoListFromFlow by remember { mutableStateOf(emptyList<Todo>()) }
 
+    val listState = rememberLazyListState()
+    var selectedFolderId by rememberSaveable { mutableStateOf("0") }
+
+    val isScrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 } }
+    val selectedNotes = remember { mutableStateOf(emptyList<Note>()) }
+    val searchBarVisible = rememberSaveable { mutableStateOf(false) }
+    var isSearchOpen by remember { mutableStateOf(false) }
+    val searchText = rememberSaveable { mutableStateOf("") }
+    var isSettingOpened by remember { mutableStateOf(false) }
+    val isMoreFeatureOpened = remember { mutableStateOf(false) }
+    val currentlySwipedTodoId = remember { mutableStateOf("") }
+    val settingsStore = SettingsStore(context)
+    val savedAnimationKey = settingsStore.getAnimationKey.collectAsState(initial = true)
+    val is24HourClock = settingsStore.getClockKey.collectAsState(initial = false)
+
+    LaunchedEffect(key1 = Unit) {
+        todoViewModel.getTodosByDate().collect { todos ->
+            todoListFromFlow = todos
+        }
+    }
+    val folderMap = folders.associateBy { it.id }
+//    val loadedList = Json.decodeFromString<List<SubTask>>(jsonString)
 
 
     Column(
@@ -220,7 +160,7 @@ fun NoteView(
                 ) {
                     IconButton(
                         onClick = {
-                           onToggleSidebar ()
+                            onToggleSidebar()
                         },
                     ) {
                         Icon(
@@ -531,9 +471,9 @@ fun NoteView(
                             onClick = {
                                 val selectedNote = selectedNotes.value.first()
                                 if (selectedNote.isFavourite) {
-                                    notesViewModel.unpinNote(selectedNote.id)
+//                                    notesViewModel.unpinNote(selectedNote.id)
                                 } else {
-                                    notesViewModel.pinNote(selectedNote.id)
+//                                    notesViewModel.pinNote(selectedNote.id)
                                 }
                                 selectedNotes.value = emptyList()
                             }
@@ -550,7 +490,6 @@ fun NoteView(
                 }
             }
         }
-
         Column {
             AnimatedVisibility(visible = selectedNotes.value.isEmpty()) {
                 Row(
@@ -634,459 +573,75 @@ fun NoteView(
                     }
                 }
             }
-            if (notesListFlow.value.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .alpha(0.8f),
-                        painter = painterResource(id = R.drawable.note),
-                        contentDescription = null,
-                        tint = Primary
-                    )
-                    Text(
-                        text = "No Notes / Checklist",
-                        fontSize = 30.sp,
-                        color = Primary,
-                        fontWeight = FontWeight.Light
-                    )
-                }
-            } else {
-                NotesList(
-                    notesViewModel,
-                    navController,
-                    state = listState,
-                    notesListFlow.value,
-                    currentSearchText,
-                    viewType,
-                    selectedNotes,
-                    folderMap,
-                    editorViewModel,
-                    onSnackbarUpdate,
-                    is24HourClock
-                )
-            }
-
         }
 
-        if (editorViewModel.isOpenFolderList) ChangeFolderOfNote(
-            folders,
-            editorViewModel,
-            selectedNotes,
-            notesViewModel,
-            onSnackbarUpdate
-        )
-
-        if (editorViewModel.isAddOrRenameFolderPopupOpen) {
-            AddOrRenameFolderPopupOpen(
-                editorViewModel,
-                folderViewModel,
-                mainViewModel,
-                navController,
-                onDismissRequest = {
-                    editorViewModel.isOpenFolderList = true
-                }
-            )
-        }
-
-        if (isSettingOpened) {
-            ModalBottomSheet(
-                onDismissRequest = { isSettingOpened = false },
-                sheetState = sheetState,
-                dragHandle = null,
-                containerColor = ColorWhite,
-                modifier = Modifier
-                    .fillMaxWidth()
-
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 15.dp)
-                        .padding(top = 15.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        HorizontalDivider(color = Color.LightGray)
-                        Text(
-                            text = "Filter Type",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                                .background(Color.White).padding(horizontal = 10.dp)
-                        )
-                    }
-                    SettingItem(
-                        icon = Icons.Default.FilterList,
-                        label = "All Notes & Checklists",
-                        selected = noteType.value == null,
-                        enabled = noteType.value != null
-                    ) {
-                        settingsViewModel.setNoteType(null)
-                    }
-
-                    SettingItem(
-                        icon = Icons.Default.Checklist,
-                        label = "Checklist Only",
-                        selected = noteType.value == Type.CHECKLIST,
-                        enabled = noteType.value != Type.CHECKLIST
-                    ) {
-                        settingsViewModel.setNoteType(Type.CHECKLIST)
-                    }
-                    SettingItem(
-                        icon = Icons.AutoMirrored.Filled.Notes,
-                        label = "Notes Only",
-                        selected = noteType.value == Type.NOTE,
-                        enabled = noteType.value != Type.NOTE
-                    ) {
-                        settingsViewModel.setNoteType(Type.NOTE)
-                    }
-
-                    Box(
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        HorizontalDivider(color = Color.LightGray)
-                        Text(
-                            text = "View Type",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                                .background(Color.White).padding(horizontal = 10.dp)
-                        )
-                    }
-                    // View Types
-                    SettingItem(
-                        icon = Icons.AutoMirrored.Filled.List,
-                        label = "List view",
-                        selected = viewType == ViewType.LIST,
-                        enabled = viewType != ViewType.LIST
-                    ) {
-                        settingsViewModel.setViewType(ViewType.LIST)
-                    }
-
-                    SettingItem(
-                        icon = Icons.Default.GridView,
-                        label = "Grid view",
-                        selected = viewType == ViewType.GRID,
-                        enabled = viewType != ViewType.GRID
-                    ) {
-                        settingsViewModel.setViewType(ViewType.GRID)
-                    }
-
-                    Box(
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        HorizontalDivider(color = Color.LightGray)
-                        Text(
-                            text = "Sort By",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                                .background(Color.White).padding(horizontal = 10.dp)
-                        )
-                    }
-                    // Sort Options
-                    SettingItem(
-                        icon = Icons.Default.Title,
-                        label = "A-Z",
-                        selected = sortOrder.value == SortOrder.TITLE_ASCENDING,
-                        enabled = sortOrder.value != SortOrder.TITLE_ASCENDING
-                    ) {
-                        settingsViewModel.setSortOrder(SortOrder.TITLE_ASCENDING)
-                    }
-
-                    SettingItem(
-                        icon = Icons.Default.Title,
-                        label = "Z-A",
-                        selected = sortOrder.value == SortOrder.TITLE_DESCENDING,
-                        enabled = sortOrder.value != SortOrder.TITLE_DESCENDING
-                    ) {
-                        settingsViewModel.setSortOrder(SortOrder.TITLE_DESCENDING)
-                    }
-
-                    SettingItem(
-                        icon = Icons.Default.DateRange,
-                        label = "NEWEST",
-                        selected = sortOrder.value == SortOrder.DATE_NEWEST_FIRST,
-                        enabled = sortOrder.value != SortOrder.DATE_NEWEST_FIRST
-                    ) {
-                        settingsViewModel.setSortOrder(SortOrder.DATE_NEWEST_FIRST)
-                    }
-
-                    SettingItem(
-                        icon = Icons.Default.DateRange,
-                        label = "OLDEST",
-                        selected = sortOrder.value == SortOrder.DATE_OLDEST_FIRST,
-                        enabled = sortOrder.value != SortOrder.DATE_OLDEST_FIRST
-                    ) {
-                        settingsViewModel.setSortOrder(SortOrder.DATE_OLDEST_FIRST)
-                    }
-
-                    // 🔽 New Sort Options (Updated At)
-                    SettingItem(
-                        icon = Icons.Default.History,
-                        label = "Last updated",
-                        selected = sortOrder.value == SortOrder.UPDATED_AT_NEWEST_FIRST,
-                        enabled = sortOrder.value != SortOrder.UPDATED_AT_NEWEST_FIRST
-                    ) {
-                        settingsViewModel.setSortOrder(SortOrder.UPDATED_AT_NEWEST_FIRST)
-                    }
-
-                    SettingItem(
-                        icon = Icons.Default.History,
-                        label = "First updated",
-                        selected = sortOrder.value == SortOrder.UPDATED_AT_OLDEST_FIRST,
-                        enabled = sortOrder.value != SortOrder.UPDATED_AT_OLDEST_FIRST
-                    ) {
-                        settingsViewModel.setSortOrder(SortOrder.UPDATED_AT_OLDEST_FIRST)
-                    }
-                }
-            }
-        }
-
-        if (editorViewModel.isDeletePopupOpen) {
-            NoteDeletePopup(
-                editorViewModel,
-                notesViewModel,
-                selectedNotes.value.map { it.id },
-                onEmptySelectedNotes = {
-                    selectedNotes.value = emptyList()
-                    editorViewModel.isDeletePopupOpen = false
-                },
-                onSnackbarUpdate
-            )
-        }
-    }
-}
-@Composable
-fun ChangeFolderOfNote(
-    folders: List<Folder>,
-    editorViewModel: NoteEditorViewModel,
-    selectedNotes: MutableState<List<Note>>,
-    notesViewModel: NoteViewModel,
-    onSnackbarUpdate: (String) -> Unit
-) {
-    var selectedFolderId by rememberSaveable { mutableStateOf<Folder?>(null) }
-
-    LaunchedEffect(key1 = folders) {
-        if (folders.isNotEmpty()) {
-            selectedFolderId = folders.first()
-        }
-    }
-
-    Dialog(
-        onDismissRequest = {
-            editorViewModel.isOpenFolderList = false
-        }
-    ) {
-        Card(
+        LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(
+                bottom = 98.dp,
+                top = 10.dp
             )
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 350.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = {
-                            editorViewModel.isOpenFolderList = false
-                            /**
-                             *
-                             */
-                            editorViewModel.isAddOrRenameFolderPopupOpen = true
-                            editorViewModel.folderBeingEdited = null
-                            editorViewModel.folderName = ""
-                        },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Primary.copy(0.1f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            tint = Primary
-                        )
-                    }
-                    Text(
-                        text = "Folders",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.W600,
-                        color = Primary,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
+            itemsIndexed(todoListFromFlow) { index, item ->
+                var visible by remember(Unit) { mutableStateOf(false) }
+
+                // Scale animation (already in your code)
+                val animatedScale by animateFloatAsState(
+                    targetValue = if (visible) 1f else 0.95f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
                     )
-                    IconButton(
-                        onClick = {
-                            editorViewModel.isOpenFolderList = false
-                        },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Primary.copy(0.1f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null,
-                            tint = Primary,
-                        )
-                    }
-                }
-                HorizontalDivider(
-                    color = Primary.copy(0.8f),
-                    thickness = 2.dp
                 )
-                LazyColumn(
+
+                // Alpha (fade-in) animation
+                val animatedAlpha by animateFloatAsState(
+                    targetValue = if (visible) 1f else 0f,
+                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                )
+
+                // Translation Y (slide-up effect)
+                val animatedTranslationY by animateDpAsState(
+                    targetValue = if (visible) 0.dp else 20.dp,
+                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                )
+
+                // Optional: subtle rotation to make it more dynamic
+                val animatedRotation by animateFloatAsState(
+                    targetValue = if (visible) 0f else 5f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
+                )
+
+                LaunchedEffect(Unit) {
+                    visible = false
+                    delay(index * 100L) // staggered delay
+                    visible = true
+                }
+
+                TodoItemView(
+                    todo = item,
+                    viewModel = todoViewModel,
                     modifier = Modifier
-                        .padding(top = 10.dp)
+                        .padding(horizontal = 10.dp)
+                        .height(85.dp)
                         .fillMaxWidth()
-                        .weight(1f)
-                        .selectableGroup(),
-                ) {
-                    items(folders) { folder ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    enabled = folder.id != "none",
-                                ) {
-                                    selectedFolderId = folder
-                                }
-                                .padding(horizontal = 15.dp, vertical = 7.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            RadioButton(
-                                selected = (folder.id == selectedFolderId?.id),
-                                onClick = null // null recommended for accessibility with screen readers
-                            )
-                            Text(
-                                text = folder.name,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.Black.copy(0.8f),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                }
-                Column {
-                    Box(
-                        modifier = Modifier
-                            .padding(bottom = 10.dp)
-                            .height(45.dp)
-                            .width(200.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (selectedFolderId != null) Primary else Color.Gray
-                            )
-                            .clickable(
-                                enabled = selectedFolderId != null,
-                            ) {
-                                selectedFolderId?.let {
-                                    val notesToDelete = selectedNotes.value
-                                    if (notesToDelete.isNotEmpty()) {
-                                        val ids = notesToDelete.map { it.id }
-                                        if (ids.isNotEmpty()) {
-                                            notesViewModel.updateFolderIdForNotes(
-                                                ids,
-                                                it.id
-                                            )
-                                            onSnackbarUpdate("Moved to ${it.name}")
-                                        }
-                                    }
-                                    selectedNotes.value = emptyList()
-                                    editorViewModel.isOpenFolderList = false
-                                }
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Save",
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White,
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
+                        .graphicsLayer {
+                            scaleX = animatedScale
+                            scaleY = animatedScale
+                            alpha = animatedAlpha
+                            translationY = animatedTranslationY.toPx()
+                            rotationZ = animatedRotation
+                        },
+                    navController,
+                    currentlySwipedTodoId = currentlySwipedTodoId,
+                    onSnackbarUpdate,
+                    is24HourClock,
+                    folderMap
+                )
             }
         }
-    }
-}
-
-@Composable
-fun SettingItem(
-    icon: ImageVector,
-    label: String,
-    selected: Boolean,
-    enabled: Boolean = true,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(CircleShape)
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 4.dp, horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(28.dp),
-            tint = if (selected) Primary else ColorBlack.copy(0.8f)
-        )
-        Text(
-            text = label,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (selected) Primary else ColorBlack.copy(0.8f)
-        )
-    }
-}
-@Composable
-fun FolderItem(
-    folder: Folder,
-    selectedFolderId: String,
-    onChange: () -> Unit
-) {
-    Box (
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .shadow(
-                elevation = 2.dp,
-                shape = CircleShape,
-            )
-            .background(if(selectedFolderId == folder.id) Primary else ColorWhite)
-            .clickable(
-                enabled = selectedFolderId != folder.id
-            ){
-                onChange()
-            }
-            .padding(
-                horizontal = 20.dp,
-                vertical = 5.dp
-            )
-    ) {
-        Text(
-            text = folder.name,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = if(selectedFolderId == folder.id) Color.White else ColorBlack.copy(0.6f)
-        )
     }
 }

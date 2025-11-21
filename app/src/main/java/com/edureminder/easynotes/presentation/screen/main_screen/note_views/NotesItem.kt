@@ -214,7 +214,7 @@ fun NotesItem(
             Box (
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(40.dp)
+                    .width(30.dp)
                     .padding(top = 3.dp),
             ) {
                 if(selectedNotes.value.isNotEmpty()){
@@ -252,14 +252,14 @@ fun NotesItem(
                             painter = painterResource(R.drawable.list),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(35.dp),
+                                .size(30.dp),
                         )
                     } else {
                         Image(
                             painter = painterResource(R.drawable.note),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(40.dp),
+                                .size(30.dp),
                         )
                     }
                 }

@@ -40,6 +40,7 @@ import com.edureminder.notebook.presentation.navigation.Screen
 import com.edureminder.notebook.presentation.screen.edit_note.NoteEditorViewModel
 import com.edureminder.notebook.presentation.screen.main_screen.diary_views.DiaryView
 import com.edureminder.notebook.presentation.screen.main_screen.note_views.NoteView
+import com.edureminder.notebook.presentation.screen.main_screen.setting_views.SettingView
 import com.edureminder.notebook.presentation.screen.main_screen.task_add.TaskAddSheet
 import com.edureminder.notebook.presentation.screen.main_screen.task_views.TaskView
 import com.edureminder.notebook.room.todo.TodoViewModel
@@ -53,7 +54,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
     val scope = rememberCoroutineScope()
     var selectedTab by rememberSaveable {
-        mutableIntStateOf(0)
+        mutableIntStateOf(4 )
     }
     val editorViewModel: NoteEditorViewModel = hiltViewModel()
     val todoViewModel: TodoViewModel = hiltViewModel()
@@ -192,6 +193,21 @@ fun MainScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                         )
 
                         3 -> DiaryView(
+                                navController,
+                                onSnackbarUpdate = { message ->
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(message)
+                                    }
+                                },
+                                onToggleSidebar = {
+                                    scope.launch {
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
+                                    }
+                                }
+                        )
+                        4 -> SettingView(
                                 navController,
                                 onSnackbarUpdate = { message ->
                                     scope.launch {

@@ -160,7 +160,7 @@ fun TaskAddSheet(
 
     fun saveTask(){
         val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val timeFormatter = DateTimeFormatter.ofPattern("H:m")
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         var dateText = ""
         var formattedTime = ""
         val jsonString = Json.encodeToString(subTasks)

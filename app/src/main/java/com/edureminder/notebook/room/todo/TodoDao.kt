@@ -40,6 +40,10 @@ interface TodoDao {
     @Query("SELECT * FROM todo_table WHERE ID = :id LIMIT 1")
     fun getOneTodo(id: String): Todo
 
+    @Query("SELECT * FROM todo_table WHERE ID = :id LIMIT 1")
+    suspend fun getOneTodoSafe(id: String): Todo?
+
+
     @Query("SELECT * FROM todo_table WHERE ID = :id")
     fun getOneTask(id: String): Flow<Todo>
 

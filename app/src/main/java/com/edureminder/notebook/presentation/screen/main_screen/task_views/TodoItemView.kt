@@ -1,6 +1,7 @@
 package com.edureminder.notebook.presentation.screen.main_screen.task_views
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -117,7 +118,6 @@ fun TodoItemView(
         0f to 0,
         -swipeWidth to 1
     )
-
     Box(
         modifier = modifier
             .swipeable(

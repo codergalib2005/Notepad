@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.edureminder.notebook.drive.AuthViewModel
+import com.edureminder.notebook.notification.createNotificationChannel
 import com.edureminder.notebook.presentation.screen.checklist_screen.AddChecklistScreen
 import com.edureminder.notebook.presentation.screen.checklist_screen.EditChecklistScreen
 import com.edureminder.notebook.presentation.screen.diary_screen.AddDiaryScreen
@@ -39,6 +40,8 @@ fun SetupNavGraph(
     LaunchedEffect(context) {
         authViewModel.initializeGoogleSignInClient(context)
     }
+    createNotificationChannel(context)
+
     SharedTransitionLayout {
 
         NavHost(

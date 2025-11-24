@@ -30,6 +30,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Notepad">
+
+        <receiver
+            android:name=".notification.Notification"
+            android:exported="true"
+            android:permission="TODO">
+            <intent-filter>
+                <action android:name="com.edureminder.notebook.SHOW_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
+
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -41,6 +53,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".receiver.BootCompletedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.RepeatingTasksReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DATE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

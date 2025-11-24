@@ -598,13 +598,13 @@ fun TaskView (
                 // Alpha (fade-in) animation
                 val animatedAlpha by animateFloatAsState(
                     targetValue = if (visible) 1f else 0f,
-                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                    animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)
                 )
 
                 // Translation Y (slide-up effect)
                 val animatedTranslationY by animateDpAsState(
                     targetValue = if (visible) 0.dp else 20.dp,
-                    animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                    animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)
                 )
 
                 // Optional: subtle rotation to make it more dynamic
@@ -615,7 +615,7 @@ fun TaskView (
 
                 LaunchedEffect(Unit) {
                     visible = false
-                    delay(index * 100L) // staggered delay
+                    delay(index * 30L) // staggered delay
                     visible = true
                 }
 
